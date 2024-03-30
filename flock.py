@@ -1,6 +1,5 @@
 import pygame
 import random
-import math
 
 # Parameters
 WIDTH, HEIGHT = 800, 600  # Screen dimensions
@@ -10,6 +9,8 @@ NEIGHBOR_RADIUS = 50  # Radius within which boids are considered neighbors
 ALIGNMENT_WEIGHT = 0.1  # Weight of alignment behavior
 COHESION_WEIGHT = 0.5  # Weight of cohesion behavior
 SEPARATION_WEIGHT = 0.5  # Weight of separation behavior
+AVOID_RADIUS = 50  # Radius within which obstacles are detected
+MAX_AVOID_FORCE = 1.0  # Maximum force applied for obstacle avoidance
 
 # Colors
 WHITE = (255, 255, 255)  # Color of boids
@@ -20,11 +21,12 @@ class Boid:
         self.position = pygame.Vector2(x, y)  # Position of the boid
         self.velocity = pygame.Vector2(random.uniform(-1, 1), random.uniform(-1, 1)).normalize() * MAX_SPEED  # Velocity of the boid
 
-    def update(self, flock):
+    def update(self, flock, obstacles):
         # Initialize vectors for alignment, cohesion, and separation
         alignment = pygame.Vector2(0, 0)
         cohesion = pygame.Vector2(0, 0)
         separation = pygame.Vector2(0, 0)
+        avoidance = pygame.Vector2(0, 0)
         num_neighbors = 0
 
         # Loop through all boids in the flock
@@ -42,6 +44,15 @@ class Boid:
                     separation += (self.position - boid.position) / distance
                     num_neighbors += 1
 
+        # Loop through all obstacles
+        for obstacle in obstacles:
+            # Calculate distance between this boid and the obstacle
+            distance = self.position.distance_to(obstacle.position)
+            # If the obstacle is within the avoidance radius
+            if distance < AVOID_RADIUS:
+                # Add a vector pointing away from the obstacle to avoidance
+                avoidance += (self.position - obstacle.position) / distance
+
         # If there are neighboring boids
         if num_neighbors > 0:
             # Calculate average alignment vector
@@ -54,8 +65,8 @@ class Boid:
             separation /= num_neighbors
             separation = separation.normalize() * MAX_SPEED
 
-            # Update velocity based on alignment, cohesion, and separation
-            self.velocity += alignment * ALIGNMENT_WEIGHT + cohesion * COHESION_WEIGHT + separation * SEPARATION_WEIGHT
+            # Update velocity based on alignment, cohesion, separation, and avoidance
+            self.velocity += alignment * ALIGNMENT_WEIGHT + cohesion * COHESION_WEIGHT + separation * SEPARATION_WEIGHT + avoidance * MAX_AVOID_FORCE
             self.velocity = self.velocity.normalize() * MAX_SPEED
 
         # Update position based on velocity
@@ -71,6 +82,10 @@ class Boid:
         # Draw the boid as a circle on the screen
         pygame.draw.circle(screen, WHITE, (int(self.position.x), int(self.position.y)), 5)
 
+class Obstacle:
+    def __init__(self, x, y):
+        self.position = pygame.Vector2(x, y)  # Position of the obstacle
+
 def main():
     # Initialize Pygame
     pygame.init()
@@ -80,6 +95,9 @@ def main():
 
     # Create a flock of boids
     flock = [Boid(random.randint(0, WIDTH), random.randint(0, HEIGHT)) for _ in range(NUM_BOIDS)]
+
+    # Create obstacles
+    obstacles = [Obstacle(random.randint(0, WIDTH), random.randint(0, HEIGHT)) for _ in range(5)]
 
     running = True
     while running:
@@ -93,8 +111,12 @@ def main():
 
         # Update and draw each boid in the flock
         for boid in flock:
-            boid.update(flock)
+            boid.update(flock, obstacles)
             boid.draw(screen)
+
+        # Draw obstacles
+        for obstacle in obstacles:
+            pygame.draw.circle(screen, (255, 0, 0), (int(obstacle.position.x), int(obstacle.position.y)), 10)
 
         # Update the display
         pygame.display.flip()
