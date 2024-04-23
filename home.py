@@ -32,10 +32,118 @@ else:
 def boid_options():
     print("boid options...")
 
+    # Read config data
     config = ConfigParser()
-    config.read('config.ini')
+    config.read('boid_profiles.ini')
 
-    print(config['boid']['population'])
+    def on_select(event):
+        # Get the currently selected item from the listbox
+        selected_index = my_listbox.curselection()
+        if selected_index:
+            selected_item = my_listbox.get(selected_index[0])
+            # Retrieve configuration data for the selected item
+            try:
+                boid_config = config[selected_item]
+                entry_NUM_BOIDS         .delete(0, tk.END)  # Clear previous value        
+                entry_MAX_SPEED         .delete(0, tk.END)
+                entry_NEIGHBOR_RADIUS   .delete(0, tk.END)
+                entry_ALIGNMENT_WEIGHT  .delete(0, tk.END)
+                entry_COHESION_WEIGHT   .delete(0, tk.END)
+                entry_SEPARATION_WEIGHT .delete(0, tk.END)
+                entry_AVOID_RADIUS      .delete(0, tk.END)
+                entry_MAX_AVOID_FORCE   .delete(0, tk.END)
+
+                entry_NUM_BOIDS         .insert(tk.END, boid_config.get('NUM_BOIDS', ''))  # Insert value
+                entry_MAX_SPEED         .insert(tk.END, boid_config.get('MAX_SPEED', ''))
+                entry_NEIGHBOR_RADIUS   .insert(tk.END, boid_config.get('NEIGHBOR_RADIUS', ''))
+                entry_ALIGNMENT_WEIGHT  .insert(tk.END, boid_config.get('ALIGNMENT_WEIGHT', ''))
+                entry_COHESION_WEIGHT   .insert(tk.END, boid_config.get('COHESION_WEIGHT', ''))
+                entry_SEPARATION_WEIGHT .insert(tk.END, boid_config.get('SEPARATION_WEIGHT', ''))
+                entry_AVOID_RADIUS      .insert(tk.END, boid_config.get('AVOID_RADIUS', ''))
+                entry_MAX_AVOID_FORCE   .insert(tk.END, boid_config.get('MAX_AVOID_FORCE', ''))
+            except KeyError:
+                messagebox.showerror("Error", f"No configuration found for '{selected_item}'")
+
+    popup = tk.Toplevel()
+    popup.title("Boid Options")
+    popup.geometry("600x300")
+
+    # Disable original window while popup is open
+    popup.grab_set()
+
+    # Create frames for inner grids
+    frame1 = tk.Frame(popup, borderwidth=1, relief="solid")
+    frame2 = tk.Frame(popup, borderwidth=1, relief="solid")
+    frame3 = tk.Frame(popup, borderwidth=1, relief="solid")
+
+    # Layout main grid
+    frame1.grid(row=0, column=0, padx=10, pady=5)
+    frame2.grid(row=0, column=1, padx=10, pady=5)
+    frame3.grid(row=0, column=2, padx=10, pady=5)
+
+    # Add a close button to the popup window
+    new_button = tk.Button(frame1, text="New", command=popup.destroy)
+    save_button = tk.Button(frame1, text="Save", command=popup.destroy)
+    delete_button = tk.Button(frame1, text="Delete", command=popup.destroy)
+    close_button = tk.Button(frame1, text="Close", command=popup.destroy)
+
+    new_button.grid(row=0, column=0, padx=10, pady=5)
+    save_button.grid(row=1, column=0, padx=10, pady=5)
+    delete_button.grid(row=2, column=0, padx=10, pady=5)
+    close_button.grid(row=3, column=0, padx=10, pady=5)
+
+    # Listbox
+    my_listbox = tk.Listbox(frame2)
+    my_listbox.grid(row=0, column=0, padx=10, pady=5)
+
+    # Populate listbox with profile names
+    for profile in config.sections():
+        my_listbox.insert(tk.END, profile)
+
+    # Entry for NUM_BOIDS
+    label_NUM_BOIDS         = tk.Label(frame3, text="Number of:")
+    label_MAX_SPEED         = tk.Label(frame3, text="Max Speed:")
+    label_NEIGHBOR_RADIUS   = tk.Label(frame3, text="Neighbor Radius:")
+    label_ALIGNMENT_WEIGHT  = tk.Label(frame3, text="Alignment Weight:")
+    label_COHESION_WEIGHT   = tk.Label(frame3, text="Cohesion Weight:")
+    label_SEPARATION_WEIGHT = tk.Label(frame3, text="Separation Weight:")
+    label_AVOID_RADIUS      = tk.Label(frame3, text="Avoid Radius:")
+    label_MAX_AVOID_FORCE   = tk.Label(frame3, text="Avoid Force:")
+    
+
+    entry_NUM_BOIDS         = tk.Entry(frame3, width=30)
+    entry_MAX_SPEED         = tk.Entry(frame3, width=30)
+    entry_NEIGHBOR_RADIUS   = tk.Entry(frame3, width=30)
+    entry_ALIGNMENT_WEIGHT  = tk.Entry(frame3, width=30)
+    entry_COHESION_WEIGHT   = tk.Entry(frame3, width=30)
+    entry_SEPARATION_WEIGHT = tk.Entry(frame3, width=30)
+    entry_AVOID_RADIUS      = tk.Entry(frame3, width=30)
+    entry_MAX_AVOID_FORCE   = tk.Entry(frame3, width=30)
+    
+
+    label_NUM_BOIDS         .grid(row=0, column=0, padx=10, pady=5, sticky="e")
+    label_MAX_SPEED         .grid(row=1, column=0, padx=10, pady=5, sticky="e")
+    label_NEIGHBOR_RADIUS   .grid(row=2, column=0, padx=10, pady=5, sticky="e")
+    label_ALIGNMENT_WEIGHT  .grid(row=3, column=0, padx=10, pady=5, sticky="e")
+    label_COHESION_WEIGHT   .grid(row=4, column=0, padx=10, pady=5, sticky="e")
+    label_SEPARATION_WEIGHT .grid(row=5, column=0, padx=10, pady=5, sticky="e")
+    label_AVOID_RADIUS      .grid(row=6, column=0, padx=10, pady=5, sticky="e")
+    label_MAX_AVOID_FORCE   .grid(row=7, column=0, padx=10, pady=5, sticky="e")
+
+    entry_NUM_BOIDS         .grid(row=0, column=1, padx=10, pady=5, sticky="w")
+    entry_MAX_SPEED         .grid(row=1, column=1, padx=10, pady=5, sticky="w")
+    entry_NEIGHBOR_RADIUS   .grid(row=2, column=1, padx=10, pady=5, sticky="w")
+    entry_ALIGNMENT_WEIGHT  .grid(row=3, column=1, padx=10, pady=5, sticky="w")
+    entry_COHESION_WEIGHT   .grid(row=4, column=1, padx=10, pady=5, sticky="w")
+    entry_SEPARATION_WEIGHT .grid(row=5, column=1, padx=10, pady=5, sticky="w")
+    entry_AVOID_RADIUS      .grid(row=6, column=1, padx=10, pady=5, sticky="w")
+    entry_MAX_AVOID_FORCE   .grid(row=7, column=1, padx=10, pady=5, sticky="w")
+    
+
+    # Bind selection event to listbox
+    my_listbox.bind('<<ListboxSelect>>', on_select)
+
+    popup.mainloop()
 
 def ga_options():
     print("ga options...")
@@ -88,9 +196,16 @@ checkbox1.grid(row=0, column=1, padx=10, pady=5, sticky="e")
 label2 = tk.Label(root, text="Boid Profile")
 label2.grid(row=1, column=0, padx=10, pady=5, sticky="w")
 
+config = ConfigParser()
+config.read('boid_profiles.ini')
+
 boid_profile = tk.StringVar()
-boid_profile.set("Boid Profile 1") # set default value
-drop = tk.OptionMenu(root, boid_profile, 'Boid Profile 1', 'Boid Profile 2')
+boid_profile.set(config.sections()[0]) # set default value
+drop = tk.OptionMenu(root, boid_profile, '')
+
+for profile in config.sections():
+    drop['menu'].add_command(label=profile, command=tk._setit(boid_profile, profile))
+
 drop.grid(row=1, column=1, padx=10, pady=5, sticky="w")
 
 # Create a label and place it in the grid
