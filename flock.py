@@ -1,5 +1,6 @@
 import pygame
 import random
+import csv
 
 # Parameters
 WIDTH, HEIGHT = 800, 600  # Screen dimensions
@@ -12,10 +13,15 @@ SEPARATION_WEIGHT = 0.5  # Weight of separation behavior
 AVOID_RADIUS = 50  # Radius within which obstacles are detected
 MAX_AVOID_FORCE = 1.0  # Maximum force applied for obstacle avoidance
 
+TARGET_LOCATION = pygame.math.Vector2(WIDTH // 2, HEIGHT // 2)
+TICK = 0
+AVG_DIST = True
+
 # Colors
-WHITE = (255, 255, 255)  # Color of boids
+WHITE = (255, 255, 255)  # Colour of boids
 BLACK = (0, 0, 0)  # Background color
-GREEN = (0, 255, 0)  # Color of target point
+GREEN = (0, 255, 0)  # Colour of target point
+RED = (255, 0, 0) # Colour of obstacles
 
 class Boid:
     def __init__(self, position, velocity):
@@ -88,6 +94,15 @@ class Boid:
         # Draw the boid as a circle on the screen
         pygame.draw.circle(screen, WHITE, (int(self.position.x), int(self.position.y)), 5)
 
+def average_dist_from_target(flock):
+    distance = 0
+    for boid in flock:
+        distance += boid.position.distance_to(TARGET_LOCATION)
+
+    distance = distance / len(flock)
+
+    return distance
+
 def main():
     # Initialize Pygame
     pygame.init()
@@ -99,13 +114,15 @@ def main():
     flock = [Boid(pygame.math.Vector2(random.randint(0, WIDTH), random.randint(0, HEIGHT)), pygame.math.Vector2(random.uniform(-1, 1), random.uniform(-1, 1)).normalize() * MAX_SPEED) for _ in range(NUM_BOIDS)]
 
     # Create obstacles
-    obstacles = [pygame.math.Vector2(random.randint(0, WIDTH), random.randint(0, HEIGHT)) for _ in range(5)]
+    obstacles = []#[pygame.math.Vector2(random.randint(0, WIDTH), random.randint(0, HEIGHT)) for _ in range(5)]
 
     # Set a target point for the flock to move towards
-    target_point = pygame.math.Vector2(WIDTH // 2, HEIGHT // 2)
+    target_point = TARGET_LOCATION
 
     running = True
     while running:
+        global TICK
+
         # Clear the screen
         screen.fill(BLACK)
 
@@ -121,7 +138,7 @@ def main():
 
         # Draw obstacles
         for obstacle in obstacles:
-            pygame.draw.circle(screen, (255, 0, 0), (int(obstacle.x), int(obstacle.y)), 10)
+            pygame.draw.circle(screen, RED, (int(obstacle.x), int(obstacle.y)), 10)
 
         # Draw the target point
         pygame.draw.circle(screen, GREEN, (int(target_point.x), int(target_point.y)), 10)
@@ -129,6 +146,26 @@ def main():
         # Update the display
         pygame.display.flip()
         clock.tick(60)
+
+        if AVG_DIST and TICK % 6 == 0:
+            avg_dist = average_dist_from_target(flock=flock)
+            
+            # Define the filename for the CSV file
+            filename = "output.csv"
+
+            # Open the CSV file in write mode
+            with open(filename, mode='a', newline='') as file:
+                # Create a CSV writer object
+                writer = csv.writer(file)
+                
+                # Write the variable to the CSV file
+                writer.writerow([avg_dist])
+                print(avg_dist)
+
+        TICK += 1
+        if TICK > 60:
+            TICK = 0
+
 
     # Quit Pygame
     pygame.quit()
