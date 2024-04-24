@@ -2,6 +2,10 @@ import tkinter as tk
 from configparser import ConfigParser
 import os
 
+boid_profile_path = 'boid_profiles.ini'
+
+boid_selected_profile = None
+
 def create_default_config():
     config = ConfigParser()
  
@@ -29,21 +33,61 @@ else:
     create_default_config()
     print("Config created...")
 
+def boid_profile_save(saveData):
+        print("Saving profile...")
+        print(saveData)
+
+        global boid_selected_profile
+
+        print(boid_selected_profile)
+
+        config = ConfigParser()
+        config.read(boid_profile_path)
+
+        selected_item = boid_selected_profile## current problem is that we dont know what index was last selected
+
+        config[selected_item]['PROFILE_NAME'] = saveData[0]
+        config[selected_item]['NUM_BOIDS'] = saveData[1]
+        config[selected_item]['MAX_SPEED'] = saveData[2]
+        config[selected_item]['NEIGHBOR_RADIUS'] = saveData[3]
+        config[selected_item]['ALIGNMENT_WEIGHT'] = saveData[4]
+        config[selected_item]['COHESION_WEIGHT'] = saveData[5]
+        config[selected_item]['SEPARATION_WEIGHT'] = saveData[6]
+        config[selected_item]['AVOID_RADIUS'] = saveData[7]
+        config[selected_item]['MAX_AVOID_FORCE'] = saveData[8]
+
+        # Write the changes back to the config file
+        with open(boid_profile_path, 'w') as config_file:
+            config.write(config_file)
+        print("Boid profile saved")
+
+
 def boid_options():
     print("boid options...")
 
     # Read config data
     config = ConfigParser()
-    config.read('boid_profiles.ini')
+    config.read(boid_profile_path)
 
     def on_select(event):
+        global boid_selected_profile
+
+
+        # Read config data again just in case of an update
+        config = ConfigParser()
+        config.read(boid_profile_path)
+
         # Get the currently selected item from the listbox
         selected_index = my_listbox.curselection()
         if selected_index:
             selected_item = my_listbox.get(selected_index[0])
             # Retrieve configuration data for the selected item
             try:
+                target_profile = selected_item
                 boid_config = config[selected_item]
+                boid_selected_profile = selected_item
+                print(f"selected item:{boid_selected_profile}")
+                entry_PROFILE_NAME      .delete(0, tk.END)
                 entry_NUM_BOIDS         .delete(0, tk.END)  # Clear previous value        
                 entry_MAX_SPEED         .delete(0, tk.END)
                 entry_NEIGHBOR_RADIUS   .delete(0, tk.END)
@@ -53,6 +97,7 @@ def boid_options():
                 entry_AVOID_RADIUS      .delete(0, tk.END)
                 entry_MAX_AVOID_FORCE   .delete(0, tk.END)
 
+                entry_PROFILE_NAME      .insert(tk.END, selected_item)
                 entry_NUM_BOIDS         .insert(tk.END, boid_config.get('NUM_BOIDS', ''))  # Insert value
                 entry_MAX_SPEED         .insert(tk.END, boid_config.get('MAX_SPEED', ''))
                 entry_NEIGHBOR_RADIUS   .insert(tk.END, boid_config.get('NEIGHBOR_RADIUS', ''))
@@ -61,6 +106,7 @@ def boid_options():
                 entry_SEPARATION_WEIGHT .insert(tk.END, boid_config.get('SEPARATION_WEIGHT', ''))
                 entry_AVOID_RADIUS      .insert(tk.END, boid_config.get('AVOID_RADIUS', ''))
                 entry_MAX_AVOID_FORCE   .insert(tk.END, boid_config.get('MAX_AVOID_FORCE', ''))
+                return target_profile
             except KeyError:
                 messagebox.showerror("Error", f"No configuration found for '{selected_item}'")
 
@@ -81,17 +127,6 @@ def boid_options():
     frame2.grid(row=0, column=1, padx=10, pady=5)
     frame3.grid(row=0, column=2, padx=10, pady=5)
 
-    # Add a close button to the popup window
-    new_button = tk.Button(frame1, text="New", command=popup.destroy)
-    save_button = tk.Button(frame1, text="Save", command=popup.destroy)
-    delete_button = tk.Button(frame1, text="Delete", command=popup.destroy)
-    close_button = tk.Button(frame1, text="Close", command=popup.destroy)
-
-    new_button.grid(row=0, column=0, padx=10, pady=5)
-    save_button.grid(row=1, column=0, padx=10, pady=5)
-    delete_button.grid(row=2, column=0, padx=10, pady=5)
-    close_button.grid(row=3, column=0, padx=10, pady=5)
-
     # Listbox
     my_listbox = tk.Listbox(frame2)
     my_listbox.grid(row=0, column=0, padx=10, pady=5)
@@ -101,6 +136,7 @@ def boid_options():
         my_listbox.insert(tk.END, profile)
 
     # Entry for NUM_BOIDS
+    label_PROFILE_NAME      = tk.Label(frame3, text="Profile Name:")
     label_NUM_BOIDS         = tk.Label(frame3, text="Number of:")
     label_MAX_SPEED         = tk.Label(frame3, text="Max Speed:")
     label_NEIGHBOR_RADIUS   = tk.Label(frame3, text="Neighbor Radius:")
@@ -110,7 +146,7 @@ def boid_options():
     label_AVOID_RADIUS      = tk.Label(frame3, text="Avoid Radius:")
     label_MAX_AVOID_FORCE   = tk.Label(frame3, text="Avoid Force:")
     
-
+    entry_PROFILE_NAME      = tk.Entry(frame3, width=30)
     entry_NUM_BOIDS         = tk.Entry(frame3, width=30)
     entry_MAX_SPEED         = tk.Entry(frame3, width=30)
     entry_NEIGHBOR_RADIUS   = tk.Entry(frame3, width=30)
@@ -119,25 +155,60 @@ def boid_options():
     entry_SEPARATION_WEIGHT = tk.Entry(frame3, width=30)
     entry_AVOID_RADIUS      = tk.Entry(frame3, width=30)
     entry_MAX_AVOID_FORCE   = tk.Entry(frame3, width=30)
+
+
+    # Add a close button to the popup window
+    new_button = tk.Button(frame1, text="New", command=popup.destroy)
+
+    save_button = tk.Button(
+        frame1, 
+        text="Save", 
+        command=lambda: boid_profile_save(
+            [
+                entry_PROFILE_NAME.get(),
+                entry_NUM_BOIDS.get(),
+                entry_MAX_SPEED.get(),
+                entry_NEIGHBOR_RADIUS.get(),
+                entry_ALIGNMENT_WEIGHT.get(),
+                entry_COHESION_WEIGHT.get(),
+                entry_SEPARATION_WEIGHT.get(),
+                entry_AVOID_RADIUS.get(),
+                entry_MAX_AVOID_FORCE.get()
+                ]
+        )
+        )
+
+
+
+    delete_button = tk.Button(frame1, text="Delete", command=popup.destroy)
+    close_button = tk.Button(frame1, text="Close", command=popup.destroy)
+
+    new_button.grid(row=0, column=0, padx=10, pady=5)
+    save_button.grid(row=1, column=0, padx=10, pady=5)
+    delete_button.grid(row=2, column=0, padx=10, pady=5)
+    close_button.grid(row=3, column=0, padx=10, pady=5)
     
 
-    label_NUM_BOIDS         .grid(row=0, column=0, padx=10, pady=5, sticky="e")
-    label_MAX_SPEED         .grid(row=1, column=0, padx=10, pady=5, sticky="e")
-    label_NEIGHBOR_RADIUS   .grid(row=2, column=0, padx=10, pady=5, sticky="e")
-    label_ALIGNMENT_WEIGHT  .grid(row=3, column=0, padx=10, pady=5, sticky="e")
-    label_COHESION_WEIGHT   .grid(row=4, column=0, padx=10, pady=5, sticky="e")
-    label_SEPARATION_WEIGHT .grid(row=5, column=0, padx=10, pady=5, sticky="e")
-    label_AVOID_RADIUS      .grid(row=6, column=0, padx=10, pady=5, sticky="e")
-    label_MAX_AVOID_FORCE   .grid(row=7, column=0, padx=10, pady=5, sticky="e")
+    # placing all the tkinter elements
+    label_PROFILE_NAME      .grid(row=0, column=0, padx=10, pady=5, sticky="e")
+    label_NUM_BOIDS         .grid(row=1, column=0, padx=10, pady=5, sticky="e")
+    label_MAX_SPEED         .grid(row=2, column=0, padx=10, pady=5, sticky="e")
+    label_NEIGHBOR_RADIUS   .grid(row=3, column=0, padx=10, pady=5, sticky="e")
+    label_ALIGNMENT_WEIGHT  .grid(row=4, column=0, padx=10, pady=5, sticky="e")
+    label_COHESION_WEIGHT   .grid(row=5, column=0, padx=10, pady=5, sticky="e")
+    label_SEPARATION_WEIGHT .grid(row=6, column=0, padx=10, pady=5, sticky="e")
+    label_AVOID_RADIUS      .grid(row=7, column=0, padx=10, pady=5, sticky="e")
+    label_MAX_AVOID_FORCE   .grid(row=8, column=0, padx=10, pady=5, sticky="e")
 
-    entry_NUM_BOIDS         .grid(row=0, column=1, padx=10, pady=5, sticky="w")
-    entry_MAX_SPEED         .grid(row=1, column=1, padx=10, pady=5, sticky="w")
-    entry_NEIGHBOR_RADIUS   .grid(row=2, column=1, padx=10, pady=5, sticky="w")
-    entry_ALIGNMENT_WEIGHT  .grid(row=3, column=1, padx=10, pady=5, sticky="w")
-    entry_COHESION_WEIGHT   .grid(row=4, column=1, padx=10, pady=5, sticky="w")
-    entry_SEPARATION_WEIGHT .grid(row=5, column=1, padx=10, pady=5, sticky="w")
-    entry_AVOID_RADIUS      .grid(row=6, column=1, padx=10, pady=5, sticky="w")
-    entry_MAX_AVOID_FORCE   .grid(row=7, column=1, padx=10, pady=5, sticky="w")
+    entry_PROFILE_NAME      .grid(row=0, column=1, padx=10, pady=5, sticky="w")
+    entry_NUM_BOIDS         .grid(row=1, column=1, padx=10, pady=5, sticky="w")
+    entry_MAX_SPEED         .grid(row=2, column=1, padx=10, pady=5, sticky="w")
+    entry_NEIGHBOR_RADIUS   .grid(row=3, column=1, padx=10, pady=5, sticky="w")
+    entry_ALIGNMENT_WEIGHT  .grid(row=4, column=1, padx=10, pady=5, sticky="w")
+    entry_COHESION_WEIGHT   .grid(row=5, column=1, padx=10, pady=5, sticky="w")
+    entry_SEPARATION_WEIGHT .grid(row=6, column=1, padx=10, pady=5, sticky="w")
+    entry_AVOID_RADIUS      .grid(row=7, column=1, padx=10, pady=5, sticky="w")
+    entry_MAX_AVOID_FORCE   .grid(row=8, column=1, padx=10, pady=5, sticky="w")
     
 
     # Bind selection event to listbox
