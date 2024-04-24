@@ -35,7 +35,6 @@ else:
 
 def boid_profile_save(saveData):
         print("Saving profile...")
-        print(saveData)
 
         global boid_selected_profile
 
@@ -45,6 +44,16 @@ def boid_profile_save(saveData):
         config.read(boid_profile_path)
 
         selected_item = boid_selected_profile## current problem is that we dont know what index was last selected
+
+        if selected_item == '' or selected_item == None:
+            print("Error: No selected profile")
+            return
+
+        # Iterate over all keys and values in the dictionary
+        for value in saveData:
+            if value == '' or value == None:
+                print("Error: Empty value in profile")
+                return
 
         config[selected_item]['PROFILE_NAME'] = saveData[0]
         config[selected_item]['NUM_BOIDS'] = saveData[1]
@@ -71,7 +80,6 @@ def boid_options():
 
     def on_select(event):
         global boid_selected_profile
-
 
         # Read config data again just in case of an update
         config = ConfigParser()
