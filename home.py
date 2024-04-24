@@ -46,8 +46,14 @@ def boid_options():
                     print("Error: Empty value in NEW profile")
                     return
 
-            # Find the next available profile id
-            profile_id = str(len(config.sections()) + 1)
+            # Automatically assign an ID to the new profile by finding the highest current
+            # existing id and iterating one to it
+            highest_id = 0
+            for section in config.sections():
+                if 'profile_id' in config[section]:
+                    if int(config[section]['profile_id']) > highest_id:
+                        highest_id = int(config[section]['profile_id'])
+            profile_id = highest_id+1
 
             entry_PROFILE_ID.config(state='normal')
             entry_PROFILE_ID.insert(0, profile_id)  # Insert the generated ID
