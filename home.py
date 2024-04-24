@@ -149,8 +149,7 @@ def boid_options():
             my_listbox.insert(tk.END, profile)
         pass
         
-
-    def on_select(event):
+    def on_profile_listbox_select(event):
         global boid_selected_profile
         global new_profile_pending
 
@@ -320,7 +319,7 @@ def boid_options():
     
 
     # Bind selection event to listbox
-    my_listbox.bind('<<ListboxSelect>>', on_select)
+    my_listbox.bind('<<ListboxSelect>>', on_profile_listbox_select)
 
     popup.mainloop()
 
