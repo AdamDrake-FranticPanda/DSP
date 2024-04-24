@@ -2,7 +2,8 @@ import tkinter as tk
 from configparser import ConfigParser
 import os
 
-boid_profile_path = 'boid_profiles.ini'
+boid_profile_path = ''
+ga_profile_path = ''
 
 boid_selected_profile = None
 new_profile_pending = False
@@ -10,15 +11,10 @@ new_profile_pending = False
 def create_default_config():
     config = ConfigParser()
  
-    # Add sections and key-value pairs
-    config['boid'] = {
-        'population': 50, 
-        'colour': 'blue'
-        }
-    
-    config['genetic_algorithm'] = {
-        'generations': 90,  
-        'mutation_rate': 0.03,
+    # Add sections and key-value pairs    
+    config['paths'] = {
+        'boid_profiles': 'boid_profiles.ini',  
+        'ga_profiles': 'ga_profiles.ini',
         }
  
     # Write the configuration to a file
@@ -33,6 +29,10 @@ else:
     print("Creating config.ini...")
     create_default_config()
     print("Config created...")
+
+config = ConfigParser()
+config.read('config.ini')
+boid_profile_path = config['paths']['boid_profiles']
 
 def boid_options():
     print("boid options...")
