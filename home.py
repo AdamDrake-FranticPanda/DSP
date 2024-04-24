@@ -336,7 +336,7 @@ def ga_options():
 def data_options():
     print("data options...")
 
-def toggle_checkbox():
+def toggle_checkbox(checkbox_state):
     # Toggle the state of the checkbox
     checkbox_state.set(not checkbox_state.get())
 
@@ -376,7 +376,7 @@ def main():
 
     # Create a checkbox and place it in the grid
     checkbox_state = tk.BooleanVar()
-    checkbox1 = tk.Checkbutton(root, variable=tk.BooleanVar(), command=toggle_checkbox)
+    checkbox1 = tk.Checkbutton(root, variable=tk.BooleanVar(), command=lambda: toggle_checkbox(checkbox_state))
     checkbox1.grid(row=0, column=1, padx=10, pady=5, sticky="e")
 
     # Create a label and place it in the grid
