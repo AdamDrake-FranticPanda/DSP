@@ -106,6 +106,22 @@ def boid_options():
             config.write(config_file)
         print("Boid profile saved")
 
+    def profile_delete_current_selected():
+        global boid_selected_profile
+
+        if boid_selected_profile == None:
+            print("No selected profile to delete")
+            return
+
+        del config[boid_selected_profile]
+
+        with open(boid_profile_path, 'w') as configfile:
+            config.write(configfile)
+
+        boid_selected_profile = None
+        refresh_profile_list()
+
+
     def boid_profile_create():
         global new_profile_pending
 
@@ -146,6 +162,10 @@ def boid_options():
 
         # Get the currently selected item from the listbox
         selected_index = my_listbox.curselection()
+
+        if len(selected_index) <= 0:# if the listbox is deselected the index tuple will be empty
+            print("Listbox de-selected...")
+            return
 
         # check if the new selection is not the "new profile"
         selected_item = my_listbox.get(selected_index[0])
@@ -274,7 +294,7 @@ def boid_options():
 
 
 
-    delete_button = tk.Button(frame1, text="Delete", command=on_closing)
+    delete_button = tk.Button(frame1, text="Delete", command=profile_delete_current_selected)
     close_button = tk.Button(frame1, text="Close", command=on_closing)
 
     new_button.grid(row=0, column=0, padx=10, pady=5)
