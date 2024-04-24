@@ -5,6 +5,7 @@ import os
 boid_profile_path = 'boid_profiles.ini'
 
 boid_selected_profile = None
+new_profile_pending = False
 
 def create_default_config():
     config = ConfigParser()
@@ -44,11 +45,52 @@ def boid_options():
         print("Saving profile...")
 
         global boid_selected_profile
-
-        print(boid_selected_profile)
+        global new_profile_pending
 
         config = ConfigParser()
         config.read(boid_profile_path)
+
+        # if there is a new profile pending then we will do this process then return
+        if new_profile_pending == True:
+
+            # Iterate over all keys and values in the dictionary
+            for value in saveData[1:]: # check that all of the elements apart from the ID isnt empty
+                if value == '' or value == None:
+                    print("Error: Empty value in NEW profile")
+                    return
+
+            # Find the next available profile id
+            profile_id = str(len(config.sections()) + 1)
+
+            entry_PROFILE_ID.config(state='normal')
+            entry_PROFILE_ID.insert(0, profile_id)  # Insert the generated ID
+            entry_PROFILE_ID.config(state='disabled')
+
+            # Create a new section with the profile data
+            section_name = f"boid profile {profile_id}"
+            config[section_name] = {
+                'profile_id': profile_id,
+                'num_boids': saveData[1],
+                'max_speed': saveData[2],
+                'neighbor_radius': saveData[3],
+                'alignment_weight': saveData[4],
+                'cohesion_weight': saveData[5],
+                'separation_weight': saveData[6],
+                'avoid_radius': saveData[7],
+                'max_avoid_force': saveData[8]
+            }
+
+            # Write the changes back to the config file
+            with open(boid_profile_path, 'w') as configfile:
+                config.write(configfile)
+
+            new_button.config(state='normal')
+            entry_PROFILE_ID.config(state='normal')
+            new_profile_pending = False  
+            refresh_profile_list()
+            return      
+
+        print(boid_selected_profile)
 
         selected_item = boid_selected_profile## current problem is that we dont know what index was last selected
 
@@ -77,8 +119,40 @@ def boid_options():
             config.write(config_file)
         print("Boid profile saved")
 
+    def boid_profile_create():
+        global new_profile_pending
+
+        new_profile_pending = True
+
+        my_listbox.insert(tk.END, "New profile")
+        new_button.config(state='disabled')
+        entry_PROFILE_ID.delete(0, tk.END)  # Delete current text in entry
+        entry_PROFILE_ID.config(state='disabled')
+
+        entry_PROFILE_ID        .delete(0, tk.END)
+        entry_NUM_BOIDS         .delete(0, tk.END)  # Clear previous value        
+        entry_MAX_SPEED         .delete(0, tk.END)
+        entry_NEIGHBOR_RADIUS   .delete(0, tk.END)
+        entry_ALIGNMENT_WEIGHT  .delete(0, tk.END)
+        entry_COHESION_WEIGHT   .delete(0, tk.END)
+        entry_SEPARATION_WEIGHT .delete(0, tk.END)
+        entry_AVOID_RADIUS      .delete(0, tk.END)
+        entry_MAX_AVOID_FORCE   .delete(0, tk.END)
+
+    def refresh_profile_list():
+
+        my_listbox.delete(0, tk.END)
+
+        config.read(boid_profile_path)
+
+        for profile in config.sections():
+            my_listbox.insert(tk.END, profile)
+        pass
+        
+
     def on_select(event):
         global boid_selected_profile
+        global new_profile_pending
 
         # Read config data again just in case of an update
         config = ConfigParser()
@@ -86,6 +160,20 @@ def boid_options():
 
         # Get the currently selected item from the listbox
         selected_index = my_listbox.curselection()
+
+        # check if the new selection is not the "new profile"
+        selected_item = my_listbox.get(selected_index[0])
+        if selected_item != 'New profile' and new_profile_pending == True:
+            print("New profile creation aborted")
+            new_button.config(state='normal')
+            entry_PROFILE_ID.config(state='normal')
+            new_profile_pending = False
+            my_listbox.delete(my_listbox.size()-1)
+            #return
+        elif selected_item == 'New profile':
+            return
+        
+
         if selected_index:
             selected_item = my_listbox.get(selected_index[0])
             # Retrieve configuration data for the selected item
@@ -121,7 +209,10 @@ def boid_options():
         print("Closing boid options...")
 
         global boid_selected_profile
+        global new_profile_pending
+
         boid_selected_profile = None
+        new_profile_pending = False # might be redundant
 
         popup.destroy()  # Close the window
     
@@ -175,7 +266,7 @@ def boid_options():
 
 
     # Add a close button to the popup window
-    new_button = tk.Button(frame1, text="New", command=on_closing)
+    new_button = tk.Button(frame1, text="New", command=boid_profile_create)
 
     save_button = tk.Button(
         frame1, 
