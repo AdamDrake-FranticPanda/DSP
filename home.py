@@ -108,7 +108,7 @@ def boid_options():
                 entry_MAX_AVOID_FORCE   .insert(tk.END, boid_config.get('MAX_AVOID_FORCE', ''))
                 return target_profile
             except KeyError:
-                messagebox.showerror("Error", f"No configuration found for '{selected_item}'")
+                tk.messagebox.showerror("Error", f"No configuration found for '{selected_item}'")
 
     popup = tk.Toplevel()
     popup.title("Boid Options")
