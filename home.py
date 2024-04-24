@@ -33,7 +33,14 @@ else:
     create_default_config()
     print("Config created...")
 
-def boid_profile_save(saveData):
+def boid_options():
+    print("boid options...")
+
+    # Read config data
+    config = ConfigParser()
+    config.read(boid_profile_path)
+
+    def boid_profile_save(saveData):
         print("Saving profile...")
 
         global boid_selected_profile
@@ -69,14 +76,6 @@ def boid_profile_save(saveData):
         with open(boid_profile_path, 'w') as config_file:
             config.write(config_file)
         print("Boid profile saved")
-
-
-def boid_options():
-    print("boid options...")
-
-    # Read config data
-    config = ConfigParser()
-    config.read(boid_profile_path)
 
     def on_select(event):
         global boid_selected_profile
@@ -123,7 +122,7 @@ def boid_options():
 
         global boid_selected_profile
         boid_selected_profile = None
-        
+
         popup.destroy()  # Close the window
     
     popup = tk.Toplevel()
