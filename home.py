@@ -21,19 +21,6 @@ def create_default_config():
     with open('config.ini', 'w') as configfile:
         config.write(configfile)
 
-# looks for config file, if not found creates a default config file
-if os.path.exists('config.ini'):
-    print("Loading config.ini...")
-else:
-    print("Config file not found...")
-    print("Creating config.ini...")
-    create_default_config()
-    print("Config created...")
-
-config = ConfigParser()
-config.read('config.ini')
-boid_profile_path = config['paths']['boid_profiles']
-
 def boid_options():
     print("boid options...")
 
@@ -336,67 +323,84 @@ def toggle_checkbox():
 def run_simulation_click():
     print("Button clicked")
 
-root = tk.Tk()
-root.title("Genetic Algorithm Boid Simulation")
-root.geometry("400x400")
+def main():
+
+    root = tk.Tk()
+    root.title("Genetic Algorithm Boid Simulation")
+    root.geometry("400x400")
 
 
-my_menu = tk.Menu(root)
+    my_menu = tk.Menu(root)
 
-root.config(menu=my_menu)
+    root.config(menu=my_menu)
 
-#Create a menu item boid
-boid_menu = tk.Menu(my_menu)
-my_menu.add_cascade(label='Boid', menu=boid_menu)
-boid_menu.add_command(label='Options...', command=boid_options)
+    #Create a menu item boid
+    boid_menu = tk.Menu(my_menu)
+    my_menu.add_cascade(label='Boid', menu=boid_menu)
+    boid_menu.add_command(label='Options...', command=boid_options)
 
-#Create a menu item genetic algorithm
-ga_menu = tk.Menu(my_menu)
-my_menu.add_cascade(label='GA', menu=ga_menu)
-ga_menu.add_command(label='Options...', command=ga_options)
+    #Create a menu item genetic algorithm
+    ga_menu = tk.Menu(my_menu)
+    my_menu.add_cascade(label='GA', menu=ga_menu)
+    ga_menu.add_command(label='Options...', command=ga_options)
 
 
-#Create a menu item data
-data_menu = tk.Menu(my_menu)
-my_menu.add_cascade(label='Data', menu=data_menu)
-data_menu.add_command(label='Options...', command=data_options)
+    #Create a menu item data
+    data_menu = tk.Menu(my_menu)
+    my_menu.add_cascade(label='Data', menu=data_menu)
+    data_menu.add_command(label='Options...', command=data_options)
 
-# Create a label and place it in the grid
-label1 = tk.Label(root, text="Show Simulation Graphics")
-label1.grid(row=0, column=0, padx=10, pady=5, sticky="w")
+    # Create a label and place it in the grid
+    label1 = tk.Label(root, text="Show Simulation Graphics")
+    label1.grid(row=0, column=0, padx=10, pady=5, sticky="w")
 
-# Create a checkbox and place it in the grid
-checkbox_state = tk.BooleanVar()
-checkbox1 = tk.Checkbutton(root, variable=tk.BooleanVar(), command=toggle_checkbox)
-checkbox1.grid(row=0, column=1, padx=10, pady=5, sticky="e")
+    # Create a checkbox and place it in the grid
+    checkbox_state = tk.BooleanVar()
+    checkbox1 = tk.Checkbutton(root, variable=tk.BooleanVar(), command=toggle_checkbox)
+    checkbox1.grid(row=0, column=1, padx=10, pady=5, sticky="e")
 
-# Create a label and place it in the grid
-label2 = tk.Label(root, text="Boid Profile")
-label2.grid(row=1, column=0, padx=10, pady=5, sticky="w")
+    # Create a label and place it in the grid
+    label2 = tk.Label(root, text="Boid Profile")
+    label2.grid(row=1, column=0, padx=10, pady=5, sticky="w")
+
+    config = ConfigParser()
+    config.read('boid_profiles.ini')
+
+    boid_profile = tk.StringVar()
+    boid_profile.set(config.sections()[0]) # set default value
+    drop = tk.OptionMenu(root, boid_profile, '')
+
+    for profile in config.sections():
+        drop['menu'].add_command(label=profile, command=tk._setit(boid_profile, profile))
+
+    drop.grid(row=1, column=1, padx=10, pady=5, sticky="w")
+
+    # Create a label and place it in the grid
+    label3 = tk.Label(root, text="Genetic Algorithm Profile")
+    label3.grid(row=2, column=0, padx=10, pady=5, sticky="w")
+
+    boid_profile = tk.StringVar()
+    boid_profile.set("GA Profile 1") # set default value
+    drop = tk.OptionMenu(root, boid_profile, 'GA Profile 1', 'GA Profile 2')
+    drop.grid(row=2, column=1, padx=10, pady=5, sticky="w")
+
+    # Create a button and place it in the window
+    button = tk.Button(root, text="Run Simulation", command=run_simulation_click)
+    button.grid(row=3, column=0, padx=5, pady=5, sticky="e")
+
+    root.mainloop()
+
+# looks for config file, if not found creates a default config file
+if os.path.exists('config.ini'):
+    print("Loading config.ini...")
+else:
+    print("Config file not found...")
+    print("Creating config.ini...")
+    create_default_config()
+    print("Config created...")
 
 config = ConfigParser()
-config.read('boid_profiles.ini')
+config.read('config.ini')
+boid_profile_path = config['paths']['boid_profiles']
 
-boid_profile = tk.StringVar()
-boid_profile.set(config.sections()[0]) # set default value
-drop = tk.OptionMenu(root, boid_profile, '')
-
-for profile in config.sections():
-    drop['menu'].add_command(label=profile, command=tk._setit(boid_profile, profile))
-
-drop.grid(row=1, column=1, padx=10, pady=5, sticky="w")
-
-# Create a label and place it in the grid
-label3 = tk.Label(root, text="Genetic Algorithm Profile")
-label3.grid(row=2, column=0, padx=10, pady=5, sticky="w")
-
-boid_profile = tk.StringVar()
-boid_profile.set("GA Profile 1") # set default value
-drop = tk.OptionMenu(root, boid_profile, 'GA Profile 1', 'GA Profile 2')
-drop.grid(row=2, column=1, padx=10, pady=5, sticky="w")
-
-# Create a button and place it in the window
-button = tk.Button(root, text="Run Simulation", command=run_simulation_click)
-button.grid(row=3, column=0, padx=5, pady=5, sticky="e")
-
-root.mainloop()
+main()
