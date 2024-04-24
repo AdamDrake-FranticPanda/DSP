@@ -55,7 +55,7 @@ def boid_profile_save(saveData):
                 print("Error: Empty value in profile")
                 return
 
-        config[selected_item]['PROFILE_NAME'] = saveData[0]
+        config[selected_item]['PROFILE_ID'] = saveData[0]
         config[selected_item]['NUM_BOIDS'] = saveData[1]
         config[selected_item]['MAX_SPEED'] = saveData[2]
         config[selected_item]['NEIGHBOR_RADIUS'] = saveData[3]
@@ -95,7 +95,7 @@ def boid_options():
                 boid_config = config[selected_item]
                 boid_selected_profile = selected_item
                 print(f"selected item:{boid_selected_profile}")
-                entry_PROFILE_NAME      .delete(0, tk.END)
+                entry_PROFILE_ID        .delete(0, tk.END)
                 entry_NUM_BOIDS         .delete(0, tk.END)  # Clear previous value        
                 entry_MAX_SPEED         .delete(0, tk.END)
                 entry_NEIGHBOR_RADIUS   .delete(0, tk.END)
@@ -105,7 +105,7 @@ def boid_options():
                 entry_AVOID_RADIUS      .delete(0, tk.END)
                 entry_MAX_AVOID_FORCE   .delete(0, tk.END)
 
-                entry_PROFILE_NAME      .insert(tk.END, selected_item)
+                entry_PROFILE_ID        .insert(tk.END, boid_config.get('PROFILE_ID', ''))
                 entry_NUM_BOIDS         .insert(tk.END, boid_config.get('NUM_BOIDS', ''))  # Insert value
                 entry_MAX_SPEED         .insert(tk.END, boid_config.get('MAX_SPEED', ''))
                 entry_NEIGHBOR_RADIUS   .insert(tk.END, boid_config.get('NEIGHBOR_RADIUS', ''))
@@ -118,9 +118,19 @@ def boid_options():
             except KeyError:
                 tk.messagebox.showerror("Error", f"No configuration found for '{selected_item}'")
 
+    def on_closing():
+        print("Closing boid options...")
+
+        global boid_selected_profile
+        boid_selected_profile = None
+        
+        popup.destroy()  # Close the window
+    
     popup = tk.Toplevel()
     popup.title("Boid Options")
     popup.geometry("600x300")
+    # Bind the function to the window's close event
+    popup.protocol("WM_DELETE_WINDOW", on_closing)
 
     # Disable original window while popup is open
     popup.grab_set()
@@ -144,7 +154,7 @@ def boid_options():
         my_listbox.insert(tk.END, profile)
 
     # Entry for NUM_BOIDS
-    label_PROFILE_NAME      = tk.Label(frame3, text="Profile Name:")
+    label_PROFILE_ID        = tk.Label(frame3, text="Profile ID:")
     label_NUM_BOIDS         = tk.Label(frame3, text="Number of:")
     label_MAX_SPEED         = tk.Label(frame3, text="Max Speed:")
     label_NEIGHBOR_RADIUS   = tk.Label(frame3, text="Neighbor Radius:")
@@ -154,7 +164,7 @@ def boid_options():
     label_AVOID_RADIUS      = tk.Label(frame3, text="Avoid Radius:")
     label_MAX_AVOID_FORCE   = tk.Label(frame3, text="Avoid Force:")
     
-    entry_PROFILE_NAME      = tk.Entry(frame3, width=30)
+    entry_PROFILE_ID        = tk.Entry(frame3, width=30)
     entry_NUM_BOIDS         = tk.Entry(frame3, width=30)
     entry_MAX_SPEED         = tk.Entry(frame3, width=30)
     entry_NEIGHBOR_RADIUS   = tk.Entry(frame3, width=30)
@@ -166,14 +176,14 @@ def boid_options():
 
 
     # Add a close button to the popup window
-    new_button = tk.Button(frame1, text="New", command=popup.destroy)
+    new_button = tk.Button(frame1, text="New", command=on_closing)
 
     save_button = tk.Button(
         frame1, 
         text="Save", 
         command=lambda: boid_profile_save(
             [
-                entry_PROFILE_NAME.get(),
+                entry_PROFILE_ID.get(),
                 entry_NUM_BOIDS.get(),
                 entry_MAX_SPEED.get(),
                 entry_NEIGHBOR_RADIUS.get(),
@@ -188,8 +198,8 @@ def boid_options():
 
 
 
-    delete_button = tk.Button(frame1, text="Delete", command=popup.destroy)
-    close_button = tk.Button(frame1, text="Close", command=popup.destroy)
+    delete_button = tk.Button(frame1, text="Delete", command=on_closing)
+    close_button = tk.Button(frame1, text="Close", command=on_closing)
 
     new_button.grid(row=0, column=0, padx=10, pady=5)
     save_button.grid(row=1, column=0, padx=10, pady=5)
@@ -198,7 +208,7 @@ def boid_options():
     
 
     # placing all the tkinter elements
-    label_PROFILE_NAME      .grid(row=0, column=0, padx=10, pady=5, sticky="e")
+    label_PROFILE_ID        .grid(row=0, column=0, padx=10, pady=5, sticky="e")
     label_NUM_BOIDS         .grid(row=1, column=0, padx=10, pady=5, sticky="e")
     label_MAX_SPEED         .grid(row=2, column=0, padx=10, pady=5, sticky="e")
     label_NEIGHBOR_RADIUS   .grid(row=3, column=0, padx=10, pady=5, sticky="e")
@@ -208,7 +218,7 @@ def boid_options():
     label_AVOID_RADIUS      .grid(row=7, column=0, padx=10, pady=5, sticky="e")
     label_MAX_AVOID_FORCE   .grid(row=8, column=0, padx=10, pady=5, sticky="e")
 
-    entry_PROFILE_NAME      .grid(row=0, column=1, padx=10, pady=5, sticky="w")
+    entry_PROFILE_ID        .grid(row=0, column=1, padx=10, pady=5, sticky="w")
     entry_NUM_BOIDS         .grid(row=1, column=1, padx=10, pady=5, sticky="w")
     entry_MAX_SPEED         .grid(row=2, column=1, padx=10, pady=5, sticky="w")
     entry_NEIGHBOR_RADIUS   .grid(row=3, column=1, padx=10, pady=5, sticky="w")
