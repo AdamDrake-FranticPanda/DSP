@@ -6,7 +6,22 @@ boid_profile_path = ''
 ga_profile_path = ''
 
 boid_selected_profile = None
+ga_selected_profile = None
 new_profile_pending = False
+
+def refresh_profile_list(my_listbox,path):
+    print("Refreshing profile")
+
+    my_listbox.delete(0, tk.END)
+
+    config = ConfigParser()
+    config.read(path)
+
+    print(config.sections())
+
+    for profile in config.sections():
+        my_listbox.insert(tk.END, profile)
+    pass
 
 def create_default_config():
     config = ConfigParser()
@@ -80,12 +95,12 @@ def boid_options():
             new_button.config(state='normal')
             entry_PROFILE_ID.config(state='normal')
             new_profile_pending = False  
-            refresh_profile_list()
+            refresh_profile_list(my_listbox,boid_profile_path)
             return      
 
         print(boid_selected_profile)
 
-        selected_item = boid_selected_profile## current problem is that we dont know what index was last selected
+        selected_item = boid_selected_profile
 
         if selected_item == '' or selected_item == None:
             print("Error: No selected profile")
@@ -125,8 +140,7 @@ def boid_options():
             config.write(configfile)
 
         boid_selected_profile = None
-        refresh_profile_list()
-
+        refresh_profile_list(my_listbox,boid_profile_path)
 
     def boid_profile_create():
         global new_profile_pending
@@ -138,6 +152,7 @@ def boid_options():
         entry_PROFILE_ID.delete(0, tk.END)  # Delete current text in entry
         entry_PROFILE_ID.config(state='disabled')
 
+        # Clear all fields
         entry_PROFILE_ID        .delete(0, tk.END)
         entry_NUM_BOIDS         .delete(0, tk.END)  # Clear previous value        
         entry_MAX_SPEED         .delete(0, tk.END)
@@ -147,16 +162,6 @@ def boid_options():
         entry_SEPARATION_WEIGHT .delete(0, tk.END)
         entry_AVOID_RADIUS      .delete(0, tk.END)
         entry_MAX_AVOID_FORCE   .delete(0, tk.END)
-
-    def refresh_profile_list():
-
-        my_listbox.delete(0, tk.END)
-
-        config.read(boid_profile_path)
-
-        for profile in config.sections():
-            my_listbox.insert(tk.END, profile)
-        pass
         
     def on_profile_listbox_select(event):
         global boid_selected_profile
@@ -185,7 +190,7 @@ def boid_options():
         elif selected_item == 'New profile':
             return
         
-
+        # find wich one was selected, clear current data and replace with right data
         if selected_index:
             selected_item = my_listbox.get(selected_index[0])
             # Retrieve configuration data for the selected item
@@ -343,11 +348,188 @@ def ga_options():
     config = ConfigParser()
     config.read(ga_profile_path)
 
+    def ga_profile_save(saveData):
+        print("Saving profile...")
+
+        global ga_selected_profile
+        global new_profile_pending
+
+        # if there is a new profile pending then we will do this process then return
+        if new_profile_pending == True:
+
+            # Iterate over all keys and values in the dictionary
+            for value in saveData[1:]: # check that all of the elements apart from the ID isnt empty
+                if value == '' or value == None:
+                    print("Error: Empty value in NEW profile")
+                    return
+
+            # Automatically assign an ID to the new profile by finding the highest current
+            # existing id and iterating one to it
+            highest_id = 0
+            for section in config.sections():
+                if 'profile_id' in config[section]:
+                    if int(config[section]['profile_id']) > highest_id:
+                        highest_id = int(config[section]['profile_id'])
+            profile_id = highest_id+1
+
+            entry_PROFILE_ID.config(state='normal')
+            entry_PROFILE_ID.insert(0, profile_id)  # Insert the generated ID
+            entry_PROFILE_ID.config(state='disabled')
+
+            # Create a new section with the profile data
+            section_name = f"ga profile {profile_id}"
+            config[section_name] = {
+                'profile_id': profile_id,
+                'population_size': saveData[1],
+                'selection_method': saveData[2],
+                'crossover_rate': saveData[3],
+                'mutation_rate': saveData[4],
+                'termination_condition': saveData[5],
+                'fitness_function': saveData[6]
+            }
+
+            # Write the changes back to the config file
+            with open(ga_profile_path, 'w') as configfile:
+                config.write(configfile)
+
+            new_button.config(state='normal')
+            entry_PROFILE_ID.config(state='normal')
+            new_profile_pending = False  
+            refresh_profile_list(my_listbox,ga_profile_path)
+            return
+        
+        print(ga_selected_profile)
+
+        selected_item = ga_selected_profile
+
+        if selected_item == '' or selected_item == None:
+            print("Error: No selected profile")
+            return
+        
+        # Iterate over all keys and values in the dictionary
+        for value in saveData:
+            if value == '' or value == None:
+                print("Error: Empty value in profile")
+                return
+            
+        config[selected_item]["profile_id"] = saveData[0]
+        config[selected_item]["population_size"] = saveData[1]
+        config[selected_item]["selection_method"] = saveData[2]
+        config[selected_item]["crossover_rate"] = saveData[3]
+        config[selected_item]["mutation_rate"] = saveData[4]
+        config[selected_item]["termination_conditio"] = saveData[5]
+        config[selected_item]["fitness_function"] = saveData[6]
+
+        # Write the changes back to the config file
+        with open(ga_profile_path, 'w') as config_file:
+            config.write(config_file)
+        print("GA profile saved")
+
+    def profile_delete_current_selected():
+        global ga_selected_profile
+
+        if ga_selected_profile == None:
+            print("No selected profile to delete")
+            return
+
+        del config[ga_selected_profile]
+
+        with open(ga_profile_path, 'w') as configfile:
+            config.write(configfile)
+
+        ga_selected_profile = None
+        refresh_profile_list(my_listbox,ga_profile_path)
+
+    def ga_profile_create():
+        global new_profile_pending
+
+        new_profile_pending = True
+
+        my_listbox.insert(tk.END, "New profile")
+        new_button.config(state='disabled')
+        entry_PROFILE_ID.delete(0,tk.END) # Delete current text in entry
+        entry_PROFILE_ID.config(state='disabled')
+
+
+        # Clear all fields
+        entry_POPULATION_SIZE      .delete(0, tk.END)
+        entry_SELECTION_METHOD     .delete(0, tk.END)
+        entry_CROSSOVER_RATE       .delete(0, tk.END)
+        entry_MUTATION_RATE        .delete(0, tk.END)
+        entry_TERMINATION_CONDITION.delete(0, tk.END)
+        entry_FITNESS_FUNCTION     .delete(0, tk.END)
+
+    def on_profile_listbox_select(event):
+        global ga_selected_profile
+        global new_profile_pending
+
+        # Read config data again just in case of an update
+        config = ConfigParser()
+        config.read(ga_profile_path)
+
+        # Get the currently selected item from the listbox
+        selected_index = my_listbox.curselection()
+
+        if len(selected_index) <= 0:# if the listbox is deselected the index tuple will be empty
+            print("Listbox de-selected...")
+            return
+
+        # check if the new selection is not the "new profile"
+        selected_item = my_listbox.get(selected_index[0])
+        if selected_item != 'New profile' and new_profile_pending == True:
+            print("New profile creation aborted")
+            new_button.config(state='normal')
+            entry_PROFILE_ID.config(state='normal')
+            new_profile_pending = False
+            my_listbox.delete(my_listbox.size()-1)
+            #return
+        elif selected_item == 'New profile':
+            return
+        
+        # find wich one was selected, clear current data and replace with right data
+        if selected_index:
+            selected_item = my_listbox.get(selected_index[0])
+            # Retrieve configuration data for the selected item
+            try:
+                target_profile = selected_item
+                ga_config = config[selected_item]
+                ga_selected_profile = selected_item
+                print(f"selected item:{ga_selected_profile}")
+                entry_PROFILE_ID           .delete(0, tk.END)
+                entry_POPULATION_SIZE      .delete(0, tk.END)  # Clear previous value        
+                entry_SELECTION_METHOD     .delete(0, tk.END)
+                entry_CROSSOVER_RATE       .delete(0, tk.END)
+                entry_MUTATION_RATE        .delete(0, tk.END)
+                entry_TERMINATION_CONDITION.delete(0, tk.END)
+                entry_FITNESS_FUNCTION     .delete(0, tk.END)
+
+                entry_PROFILE_ID.insert(tk.END, ga_config.get('PROFILE_ID', ''))
+                entry_POPULATION_SIZE.insert(tk.END, ga_config.get('population_size', ''))  # Insert value
+                entry_SELECTION_METHOD.insert(tk.END, ga_config.get('selection_method', ''))
+                entry_CROSSOVER_RATE.insert(tk.END, ga_config.get('crossover_rate', ''))
+                entry_MUTATION_RATE.insert(tk.END, ga_config.get('mutation_rate', ''))
+                entry_TERMINATION_CONDITION.insert(tk.END, ga_config.get('termination_condition', ''))
+                entry_FITNESS_FUNCTION.insert(tk.END, ga_config.get('fitness_function', ''))
+                return target_profile
+            except KeyError:
+                tk.messagebox.showerror("Error", f"No configuration found for '{selected_item}'")
+
+    def on_closing():
+        print("Closing GA options...")
+
+        global ga_selected_profile
+        global new_profile_pending
+
+        ga_selected_profile = None
+        new_profile_pending = False # might be redundant
+
+        popup.destroy()  # Close the window
+    
     popup = tk.Toplevel()
     popup.title("Genetic Algorithm Options")
     popup.geometry("650x300")
     # Bind the function to the window's close event
-    popup.protocol("WM_DELETE_WINDOW", popup.destroy)
+    popup.protocol("WM_DELETE_WINDOW", on_closing)
 
     # Disable original window while popup is open
     #popup.grab_set()
@@ -365,6 +547,10 @@ def ga_options():
     # Listbox
     my_listbox = tk.Listbox(frame2)
     my_listbox.grid(row=0, column=0, padx=10, pady=5)
+
+    # Populate listbox with profile names
+    for profile in config.sections():
+        my_listbox.insert(tk.END, profile)
 
     # Entry for GA options
     label_PROFILE_ID            = tk.Label(frame3, text="Profile ID:")
@@ -384,10 +570,23 @@ def ga_options():
     entry_FITNESS_FUNCTION      = tk.Entry(frame3, width=30)
 
     # Add buttons to the popup window
-    new_button = tk.Button(frame1, text="New", command=popup.destroy)
-    save_button = tk.Button(frame1, text="Save", command=popup.destroy)
-    delete_button = tk.Button(frame1, text="Delete", command=popup.destroy)
-    close_button = tk.Button(frame1, text="Save", command=popup.destroy)
+    new_button = tk.Button(frame1, text="New", command=ga_profile_create)
+    save_button = tk.Button(
+        frame1, text="Save", 
+        command=lambda: ga_profile_save(
+            [
+                entry_PROFILE_ID           .get(),
+                entry_POPULATION_SIZE      .get(),
+                entry_SELECTION_METHOD     .get(),
+                entry_CROSSOVER_RATE       .get(),
+                entry_MUTATION_RATE        .get(),
+                entry_TERMINATION_CONDITION.get(),
+                entry_FITNESS_FUNCTION     .get()
+            ]
+        )
+        )
+    delete_button = tk.Button(frame1, text="Delete", command=profile_delete_current_selected)
+    close_button = tk.Button(frame1, text="Close", command=on_closing)
 
     new_button.grid(row=0, column=0, padx=10, pady=5)
     save_button.grid(row=1, column=0, padx=10, pady=5)
@@ -410,6 +609,10 @@ def ga_options():
     entry_TERMINATION_CONDITION.grid(row=5, column=1, padx=10, pady=5, sticky="w")
     entry_FITNESS_FUNCTION     .grid(row=6, column=1, padx=10, pady=5, sticky="w")
 
+
+    # Bind selection event to listbox
+    my_listbox.bind('<<ListboxSelect>>', on_profile_listbox_select)
+
     popup.mainloop()
 
 def data_options():
@@ -427,7 +630,6 @@ def main():
     root = tk.Tk()
     root.title("Genetic Algorithm Boid Simulation")
     root.geometry("400x400")
-
 
     my_menu = tk.Menu(root)
 
@@ -501,5 +703,6 @@ else:
 config = ConfigParser()
 config.read('config.ini')
 boid_profile_path = config['paths']['boid_profiles']
+ga_profile_path = config['paths']['genetic_profiles']
 
 main()
