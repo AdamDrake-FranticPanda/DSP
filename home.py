@@ -665,13 +665,18 @@ def main():
     label2.grid(row=1, column=0, padx=10, pady=5, sticky="w")
 
     config = ConfigParser()
-    config.read('boid_profiles.ini')
+    config.read(boid_profile_path)
 
     boid_profile = tk.StringVar()
     boid_profile.set(config.sections()[0]) # set default value
-    drop = tk.OptionMenu(root, boid_profile, '')
+    # Initialize OptionMenu with the first profile from config_sections
 
-    for profile in config.sections():
+    config_sections = config.sections()
+
+    drop = tk.OptionMenu(root, boid_profile, config_sections[0])
+
+    # Add remaining profiles to the OptionMenu
+    for profile in config_sections[1:]:
         drop['menu'].add_command(label=profile, command=tk._setit(boid_profile, profile))
 
     drop.grid(row=1, column=1, padx=10, pady=5, sticky="w")
