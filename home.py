@@ -235,7 +235,7 @@ def boid_options():
     popup.protocol("WM_DELETE_WINDOW", on_closing)
 
     # Disable original window while popup is open
-    popup.grab_set()
+    #popup.grab_set()
 
     # Create frames for inner grids
     frame1 = tk.Frame(popup, borderwidth=1, relief="solid")
@@ -277,7 +277,7 @@ def boid_options():
     entry_MAX_AVOID_FORCE   = tk.Entry(frame3, width=30)
 
 
-    # Add a close button to the popup window
+    # Add buttons to the popup window
     new_button = tk.Button(frame1, text="New", command=boid_profile_create)
 
     save_button = tk.Button(
@@ -338,6 +338,79 @@ def boid_options():
 
 def ga_options():
     print("ga options...")
+
+    # Read config data
+    config = ConfigParser()
+    config.read(ga_profile_path)
+
+    popup = tk.Toplevel()
+    popup.title("Genetic Algorithm Options")
+    popup.geometry("650x300")
+    # Bind the function to the window's close event
+    popup.protocol("WM_DELETE_WINDOW", popup.destroy)
+
+    # Disable original window while popup is open
+    #popup.grab_set()
+
+    # Create frames for inner grids
+    frame1 = tk.Frame(popup, borderwidth=1, relief="solid")
+    frame2 = tk.Frame(popup, borderwidth=1, relief="solid")
+    frame3 = tk.Frame(popup, borderwidth=1, relief="solid")
+
+    # Layout main grid
+    frame1.grid(row=0, column=0, padx=10, pady=5)
+    frame2.grid(row=0, column=1, padx=10, pady=5)
+    frame3.grid(row=0, column=2, padx=10, pady=5)
+
+    # Listbox
+    my_listbox = tk.Listbox(frame2)
+    my_listbox.grid(row=0, column=0, padx=10, pady=5)
+
+    # Entry for GA options
+    label_PROFILE_ID            = tk.Label(frame3, text="Profile ID:")
+    label_POPULATION_SIZE       = tk.Label(frame3, text="Population Size:")
+    label_SELECTION_METHOD      = tk.Label(frame3, text="Selection Method:")
+    label_CROSSOVER_RATE        = tk.Label(frame3, text="Crossover Rate:")
+    label_MUTATION_RATE         = tk.Label(frame3, text="Mutation Rate:")
+    label_TERMINATION_CONDITION = tk.Label(frame3, text="Termination Condition:")
+    label_FITNESS_FUNCTION      = tk.Label(frame3, text="Fitness Function:")
+
+    entry_PROFILE_ID            = tk.Entry(frame3, width=30)
+    entry_POPULATION_SIZE       = tk.Entry(frame3, width=30)
+    entry_SELECTION_METHOD      = tk.Entry(frame3, width=30)
+    entry_CROSSOVER_RATE        = tk.Entry(frame3, width=30)
+    entry_MUTATION_RATE         = tk.Entry(frame3, width=30)
+    entry_TERMINATION_CONDITION = tk.Entry(frame3, width=30)
+    entry_FITNESS_FUNCTION      = tk.Entry(frame3, width=30)
+
+    # Add buttons to the popup window
+    new_button = tk.Button(frame1, text="New", command=popup.destroy)
+    save_button = tk.Button(frame1, text="Save", command=popup.destroy)
+    delete_button = tk.Button(frame1, text="Delete", command=popup.destroy)
+    close_button = tk.Button(frame1, text="Save", command=popup.destroy)
+
+    new_button.grid(row=0, column=0, padx=10, pady=5)
+    save_button.grid(row=1, column=0, padx=10, pady=5)
+    delete_button.grid(row=2, column=0, padx=10, pady=5)
+    close_button.grid(row=3, column=0, padx=10, pady=5)
+
+    label_PROFILE_ID           .grid(row=0, column=0, padx=10, pady=5, sticky="e")
+    label_POPULATION_SIZE      .grid(row=1, column=0, padx=10, pady=5, sticky="e")
+    label_SELECTION_METHOD     .grid(row=2, column=0, padx=10, pady=5, sticky="e")
+    label_CROSSOVER_RATE       .grid(row=3, column=0, padx=10, pady=5, sticky="e")
+    label_MUTATION_RATE        .grid(row=4, column=0, padx=10, pady=5, sticky="e")
+    label_TERMINATION_CONDITION.grid(row=5, column=0, padx=10, pady=5, sticky="e")
+    label_FITNESS_FUNCTION     .grid(row=6, column=0, padx=10, pady=5, sticky="e")
+
+    entry_PROFILE_ID           .grid(row=0, column=1, padx=10, pady=5, sticky="w")
+    entry_POPULATION_SIZE      .grid(row=1, column=1, padx=10, pady=5, sticky="w")
+    entry_SELECTION_METHOD     .grid(row=2, column=1, padx=10, pady=5, sticky="w")
+    entry_CROSSOVER_RATE       .grid(row=3, column=1, padx=10, pady=5, sticky="w")
+    entry_MUTATION_RATE        .grid(row=4, column=1, padx=10, pady=5, sticky="w")
+    entry_TERMINATION_CONDITION.grid(row=5, column=1, padx=10, pady=5, sticky="w")
+    entry_FITNESS_FUNCTION     .grid(row=6, column=1, padx=10, pady=5, sticky="w")
+
+    popup.mainloop()
 
 def data_options():
     print("data options...")
