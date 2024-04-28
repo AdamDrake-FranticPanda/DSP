@@ -641,8 +641,6 @@ def run_simulation_click(boid_profile, ga_profile):
     boid_config = ConfigParser()
     boid_config.read(boid_profile_path)
 
-    boid_options = boid_config.options(boid_profile_name)
-
     boid_simulation.run(
         num_boids           = int(boid_config[boid_profile_name]['num_boids']),
         max_speed           = int(boid_config[boid_profile_name]['max_speed']), 
