@@ -664,31 +664,45 @@ def main():
     label2 = tk.Label(root, text="Boid Profile")
     label2.grid(row=1, column=0, padx=10, pady=5, sticky="w")
 
-    config = ConfigParser()
-    config.read(boid_profile_path)
+    boid_config = ConfigParser()
+    boid_config.read(boid_profile_path)
 
     boid_profile = tk.StringVar()
-    boid_profile.set(config.sections()[0]) # set default value
-    # Initialize OptionMenu with the first profile from config_sections
+    boid_profile.set(boid_config.sections()[0]) # set default value
 
-    config_sections = config.sections()
+    boid_sections = boid_config.sections()
 
-    drop = tk.OptionMenu(root, boid_profile, config_sections[0])
+    # Add the first section to the drop on initialisation
+    boid_drop = tk.OptionMenu(root, boid_profile, boid_sections[0])
 
     # Add remaining profiles to the OptionMenu
-    for profile in config_sections[1:]:
-        drop['menu'].add_command(label=profile, command=tk._setit(boid_profile, profile))
+    for profile in boid_sections[1:]:
+        boid_drop['menu'].add_command(label=profile, command=tk._setit(boid_profile, profile))
 
-    drop.grid(row=1, column=1, padx=10, pady=5, sticky="w")
+    boid_drop.grid(row=1, column=1, padx=10, pady=5, sticky="w")
 
     # Create a label and place it in the grid
     label3 = tk.Label(root, text="Genetic Algorithm Profile")
     label3.grid(row=2, column=0, padx=10, pady=5, sticky="w")
 
-    boid_profile = tk.StringVar()
-    boid_profile.set("GA Profile 1") # set default value
-    drop = tk.OptionMenu(root, boid_profile, 'GA Profile 1', 'GA Profile 2')
-    drop.grid(row=2, column=1, padx=10, pady=5, sticky="w")
+    ga_config = ConfigParser()
+    ga_config.read(ga_profile_path)
+
+    ga_profile = tk.StringVar()
+    ga_profile.set(ga_config.sections()[0]) # set default value
+    # Initialize OptionMenu with the first profile from config_sections
+
+    ga_sections = ga_config.sections()
+
+    # Add the first section to the drop on initialisation
+    ga_drop = tk.OptionMenu(root, ga_profile, ga_sections[0])
+
+    # Add remaining profiles to the OptionMenu
+    for profile in ga_sections[1:]:
+        ga_drop['menu'].add_command(label=profile, command=tk._setit(ga_profile, profile))
+
+    ga_drop.grid(row=2, column=1, padx=10, pady=5, sticky="w")
+
 
     # Create a button and place it in the window
     button = tk.Button(root, text="Run Simulation", command=run_simulation_click)
