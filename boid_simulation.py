@@ -114,7 +114,8 @@ def run(
         cohesion_weight = COHESION_WEIGHT,
         separation_weight = SEPARATION_WEIGHT,
         avoid_radius = AVOID_RADIUS,
-        max_avoid_force = MAX_AVOID_FORCE
+        max_avoid_force = MAX_AVOID_FORCE,
+        show_graphics = True
         ):
 
     global NUM_BOIDS
@@ -126,6 +127,10 @@ def run(
     global AVOID_RADIUS # Radius within which obstacles are detected
     global MAX_AVOID_FORCE # Maximum force applied for obstacle avoidance
 
+    global TICK
+
+    TICK = 0
+
     NUM_BOIDS = num_boids
     MAX_SPEED = max_speed
     NEIGHBOR_RADIUS = neighbor_radius
@@ -135,7 +140,6 @@ def run(
     AVOID_RADIUS = avoid_radius
     MAX_AVOID_FORCE = max_avoid_force
 
-    with_graphics = True
 
     # Create a flock of boids
     flock = [Boid(pygame.math.Vector2(random.randint(0, WIDTH), random.randint(0, HEIGHT)), pygame.math.Vector2(random.uniform(-1, 1), random.uniform(-1, 1)).normalize() * MAX_SPEED) for _ in range(NUM_BOIDS)]
@@ -146,7 +150,7 @@ def run(
     # Set a target point for the flock to move towards
     target_point = TARGET_LOCATION
 
-    if with_graphics:
+    if show_graphics:
 
         # Initialize Pygame
         pygame.init()
@@ -156,7 +160,6 @@ def run(
 
         running = True
         while running:
-            global TICK
 
             # Clear the screen
             screen.fill(BLACK)

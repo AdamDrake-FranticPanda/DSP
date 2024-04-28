@@ -624,7 +624,7 @@ def toggle_checkbox(checkbox_state):
     # Toggle the state of the checkbox
     checkbox_state.set(not checkbox_state.get())
 
-def run_simulation_click(boid_profile, ga_profile):
+def run_simulation_click(boid_profile, ga_profile, show_graphics):
     print("Running Simulation")
     # things we want to tell the simulation
     # - A) all of the data that is associated with the boid profile the user has selected in the home screen
@@ -635,6 +635,7 @@ def run_simulation_click(boid_profile, ga_profile):
     # - we need to read in the data from the selected boid profile
     print(f"Selected Boid Profile: {boid_profile.get()}")
     print(f"Selected GA Profile: {ga_profile.get()}")
+    print(f"Simulation Graphics: {show_graphics.get()}")
 
     boid_profile_name = boid_profile.get()
 
@@ -649,7 +650,8 @@ def run_simulation_click(boid_profile, ga_profile):
         cohesion_weight     = float(boid_config[boid_profile_name]['cohesion_weight']),
         separation_weight   = float(boid_config[boid_profile_name]['separation_weight']),
         avoid_radius        = int(boid_config[boid_profile_name]['avoid_radius']),
-        max_avoid_force     = float(boid_config[boid_profile_name]['max_avoid_force'])
+        max_avoid_force     = float(boid_config[boid_profile_name]['max_avoid_force']),
+        show_graphics       = show_graphics.get()
     )
 
 def main():
@@ -719,7 +721,7 @@ def main():
 
 
     # Create a button and place it in the window
-    button = tk.Button(root, text="Run Simulation", command=lambda: run_simulation_click(boid_profile, ga_profile))
+    button = tk.Button(root, text="Run Simulation", command=lambda: run_simulation_click(boid_profile, ga_profile, checkbox_state))
     button.grid(row=3, column=0, padx=5, pady=5, sticky="e")
 
     root.mainloop()
