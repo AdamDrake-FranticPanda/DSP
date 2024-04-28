@@ -2,6 +2,9 @@ import pygame
 import random
 import csv
 
+random.seed(42)
+print(f"SIMULATION SEED: {42}")
+
 # Parameters
 WIDTH, HEIGHT = 800, 600  # Screen dimensions
 NUM_BOIDS = 50  # Number of boids
@@ -132,71 +135,93 @@ def run(
     AVOID_RADIUS = avoid_radius
     MAX_AVOID_FORCE = max_avoid_force
 
-    # Initialize Pygame
-    pygame.init()
-    screen = pygame.display.set_mode((WIDTH, HEIGHT))
-    pygame.display.set_caption("Flocking Simulation")
-    clock = pygame.time.Clock()
+    with_graphics = True
 
     # Create a flock of boids
     flock = [Boid(pygame.math.Vector2(random.randint(0, WIDTH), random.randint(0, HEIGHT)), pygame.math.Vector2(random.uniform(-1, 1), random.uniform(-1, 1)).normalize() * MAX_SPEED) for _ in range(NUM_BOIDS)]
 
     # Create obstacles
-    obstacles = []#[pygame.math.Vector2(random.randint(0, WIDTH), random.randint(0, HEIGHT)) for _ in range(5)]
+    obstacles = [pygame.math.Vector2(random.randint(0, WIDTH), random.randint(0, HEIGHT)) for _ in range(1)]
 
     # Set a target point for the flock to move towards
     target_point = TARGET_LOCATION
 
-    running = True
-    while running:
-        global TICK
+    if with_graphics:
 
-        # Clear the screen
-        screen.fill(BLACK)
+        # Initialize Pygame
+        pygame.init()
+        screen = pygame.display.set_mode((WIDTH, HEIGHT))
+        pygame.display.set_caption("Flocking Simulation")
+        clock = pygame.time.Clock()
 
-        # Handle events
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
+        running = True
+        while running:
+            global TICK
 
-        # Update and draw each boid in the flock
-        for boid in flock:
-            boid.update(flock, obstacles, target_point)
-            boid.draw(screen)
+            # Clear the screen
+            screen.fill(BLACK)
 
-        # Draw obstacles
-        for obstacle in obstacles:
-            pygame.draw.circle(screen, RED, (int(obstacle.x), int(obstacle.y)), 10)
+            # Handle events
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
 
-        # Draw the target point
-        pygame.draw.circle(screen, GREEN, (int(target_point.x), int(target_point.y)), 10)
+            # Update and draw each boid in the flock
+            for boid in flock:
+                boid.update(flock, obstacles, target_point)
+                boid.draw(screen)
 
-        # Update the display
-        pygame.display.flip()
-        clock.tick(60)
+            # Draw obstacles
+            for obstacle in obstacles:
+                pygame.draw.circle(screen, RED, (int(obstacle.x), int(obstacle.y)), 10)
 
-        if AVG_DIST and TICK % 6 == 0:
-            avg_dist = average_dist_from_target(flock=flock)
-            
-            # Define the filename for the CSV file
-            filename = "output.csv"
+            # Draw the target point
+            pygame.draw.circle(screen, GREEN, (int(target_point.x), int(target_point.y)), 10)
 
-            # Open the CSV file in write mode
-            with open(filename, mode='a', newline='') as file:
-                # Create a CSV writer object
-                writer = csv.writer(file)
+            # Update the display
+            pygame.display.flip()
+            clock.tick(60)
+
+            # if AVG_DIST and TICK % 6 == 0:
+            #     avg_dist = average_dist_from_target(flock=flock)
                 
-                # Write the variable to the CSV file
-                writer.writerow([avg_dist])
-                print(avg_dist)
+            #     # Define the filename for the CSV file
+            #     filename = "output.csv"
 
-        TICK += 1
-        if TICK > 60:
-            TICK = 0
+            #     # Open the CSV file in write mode
+            #     with open(filename, mode='a', newline='') as file:
+            #         # Create a CSV writer object
+            #         writer = csv.writer(file)
+                    
+            #         # Write the variable to the CSV file
+            #         writer.writerow([avg_dist])
+            #         print(avg_dist)
+
+            TICK += 1
+            # if TICK > 60:
+            #     TICK = 0
+
+            avg_dist = average_dist_from_target(flock=flock)
+            print(avg_dist)
+
+            if TICK == 59:
+                running = False
+                pygame.quit()
 
 
-    # Quit Pygame
-    pygame.quit()
+        # Quit Pygame
+        pygame.quit()
+
+    else:
+        while TICK < 60:  # Simulate for 60 ticks
+            avg_dist = average_dist_from_target(flock=flock)
+            print(avg_dist)
+
+            TICK += 1
+
+            # Update and draw each boid in the flock
+            for boid in flock:
+                boid.update(flock, obstacles, target_point)
 
 if __name__ == "__main__":
     run()
