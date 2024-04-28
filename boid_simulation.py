@@ -103,7 +103,35 @@ def average_dist_from_target(flock):
 
     return distance
 
-def main():
+def run(
+        num_boids = NUM_BOIDS, 
+        max_speed = MAX_SPEED, 
+        neighbor_radius = NEIGHBOR_RADIUS,
+        alignment_weight = ALIGNMENT_WEIGHT,
+        cohesion_weight = COHESION_WEIGHT,
+        separation_weight = SEPARATION_WEIGHT,
+        avoid_radius = AVOID_RADIUS,
+        max_avoid_force = MAX_AVOID_FORCE
+        ):
+
+    global NUM_BOIDS
+    global MAX_SPEED # Maximum speed of a boid
+    global NEIGHBOR_RADIUS # Radius within which boids are considered neighbors
+    global ALIGNMENT_WEIGHT # Weight of alignment behavior
+    global COHESION_WEIGHT # Weight of cohesion behavior
+    global SEPARATION_WEIGHT # Weight of separation behavior
+    global AVOID_RADIUS # Radius within which obstacles are detected
+    global MAX_AVOID_FORCE # Maximum force applied for obstacle avoidance
+
+    NUM_BOIDS = num_boids
+    MAX_SPEED = max_speed
+    NEIGHBOR_RADIUS = neighbor_radius
+    ALIGNMENT_WEIGHT = alignment_weight
+    COHESION_WEIGHT = cohesion_weight
+    SEPARATION_WEIGHT = separation_weight
+    AVOID_RADIUS = avoid_radius
+    MAX_AVOID_FORCE = max_avoid_force
+
     # Initialize Pygame
     pygame.init()
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -171,4 +199,4 @@ def main():
     pygame.quit()
 
 if __name__ == "__main__":
-    main()
+    run()

@@ -633,13 +633,26 @@ def run_simulation_click(boid_profile, ga_profile):
 
     # How we achieve A
     # - we need to read in the data from the selected boid profile
-    print(boid_profile.get())
-    print(ga_profile.get())
+    print(f"Selected Boid Profile: {boid_profile.get()}")
+    print(f"Selected GA Profile: {ga_profile.get()}")
+
+    boid_profile_name = boid_profile.get()
 
     boid_config = ConfigParser()
+    boid_config.read(boid_profile_path)
 
+    boid_options = boid_config.options(boid_profile_name)
 
-    #boid_simulation.main()
+    boid_simulation.run(
+        num_boids           = int(boid_config[boid_profile_name]['num_boids']),
+        max_speed           = int(boid_config[boid_profile_name]['max_speed']), 
+        neighbor_radius     = int(boid_config[boid_profile_name]['neighbor_radius']),
+        alignment_weight    = float(boid_config[boid_profile_name]['alignment_weight']),
+        cohesion_weight     = float(boid_config[boid_profile_name]['cohesion_weight']),
+        separation_weight   = float(boid_config[boid_profile_name]['separation_weight']),
+        avoid_radius        = int(boid_config[boid_profile_name]['avoid_radius']),
+        max_avoid_force     = float(boid_config[boid_profile_name]['max_avoid_force'])
+    )
 
 def main():
 
