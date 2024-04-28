@@ -2,6 +2,8 @@ import tkinter as tk
 from configparser import ConfigParser
 import os
 
+import boid_simulation
+
 boid_profile_path = ''
 ga_profile_path = ''
 
@@ -622,8 +624,22 @@ def toggle_checkbox(checkbox_state):
     # Toggle the state of the checkbox
     checkbox_state.set(not checkbox_state.get())
 
-def run_simulation_click():
-    print("Button clicked")
+def run_simulation_click(boid_profile, ga_profile):
+    print("Running Simulation")
+    # things we want to tell the simulation
+    # - A) all of the data that is associated with the boid profile the user has selected in the home screen
+    # - B) weather we are running graphics
+    # - C) what 'data' we want to save from the simulation, as chosen by the user
+
+    # How we achieve A
+    # - we need to read in the data from the selected boid profile
+    print(boid_profile.get())
+    print(ga_profile.get())
+
+    boid_config = ConfigParser()
+
+
+    #boid_simulation.main()
 
 def main():
 
@@ -667,17 +683,11 @@ def main():
     boid_config = ConfigParser()
     boid_config.read(boid_profile_path)
 
-    boid_profile = tk.StringVar()
+    boid_profile = tk.StringVar(root)
     boid_profile.set(boid_config.sections()[0]) # set default value
 
-    boid_sections = boid_config.sections()
-
-    # Add the first section to the drop on initialisation
-    boid_drop = tk.OptionMenu(root, boid_profile, boid_sections[0])
-
-    # Add remaining profiles to the OptionMenu
-    for profile in boid_sections[1:]:
-        boid_drop['menu'].add_command(label=profile, command=tk._setit(boid_profile, profile))
+    # Add the sections to the drop on initialisation
+    boid_drop = tk.OptionMenu(root, boid_profile, *boid_config.sections())
 
     boid_drop.grid(row=1, column=1, padx=10, pady=5, sticky="w")
 
@@ -688,24 +698,17 @@ def main():
     ga_config = ConfigParser()
     ga_config.read(ga_profile_path)
 
-    ga_profile = tk.StringVar()
+    ga_profile = tk.StringVar(root)
     ga_profile.set(ga_config.sections()[0]) # set default value
-    # Initialize OptionMenu with the first profile from config_sections
 
-    ga_sections = ga_config.sections()
-
-    # Add the first section to the drop on initialisation
-    ga_drop = tk.OptionMenu(root, ga_profile, ga_sections[0])
-
-    # Add remaining profiles to the OptionMenu
-    for profile in ga_sections[1:]:
-        ga_drop['menu'].add_command(label=profile, command=tk._setit(ga_profile, profile))
+    # Add the sections to the drop on initialisation
+    ga_drop = tk.OptionMenu(root, ga_profile, *ga_config.sections())
 
     ga_drop.grid(row=2, column=1, padx=10, pady=5, sticky="w")
 
 
     # Create a button and place it in the window
-    button = tk.Button(root, text="Run Simulation", command=run_simulation_click)
+    button = tk.Button(root, text="Run Simulation", command=lambda: run_simulation_click(boid_profile, ga_profile))
     button.grid(row=3, column=0, padx=5, pady=5, sticky="e")
 
     root.mainloop()
