@@ -2,9 +2,6 @@ import pygame
 import random
 import csv
 
-random.seed(42)
-print(f"SIMULATION SEED: {42}")
-
 # Parameters
 WIDTH, HEIGHT = 800, 600  # Screen dimensions
 NUM_BOIDS = 50  # Number of boids
@@ -139,6 +136,8 @@ def run(
     SEPARATION_WEIGHT = separation_weight
     AVOID_RADIUS = avoid_radius
     MAX_AVOID_FORCE = max_avoid_force
+
+    random.seed(42)
 
 
     # Create a flock of boids
