@@ -49,9 +49,9 @@ def main(muteChance,    # the chance of a gene mutating
     lowestPerGeneration = []
     averages = []
 
-    def printAllFitnesses(pop):
+    def printAllGene(pop):
         for ind in pop:
-            print(ind.fitness)
+            print(ind.gene)
 
     def boidFitnessFuncTest(ind):
         fitness = boid_simulation.run(
@@ -66,6 +66,7 @@ def main(muteChance,    # the chance of a gene mutating
             show_graphics       = False
         )
         #print(f"fitness = {fitness}")
+        #print(ind.gene[0],ind.gene[1],ind.gene[2],ind.gene[3],ind.gene[4],ind.gene[5],ind.gene[6])
         return fitness
 
     # returns the total fitness of a population
@@ -121,16 +122,29 @@ def main(muteChance,    # the chance of a gene mutating
     #loop for amount of generations
     print(f"Generations {G}")
     for j in range(0, G):
+
+        #print("start of generation")
+        #printAllGene(population)
+
         #crossover
         # for the size of the population generate an offspring using two random individuals from main population
         # using some genes from ind1 and some from ind2 (crossover)
         for person in population:
+            
+            # Seed the random number generator with the current system time
+            random.seed()
+
             #select two random parents (selection)
             offspring1 = copy.deepcopy(population[random.randint(0, P-1)])# set offspring 1 # get random individual
             offspring2 = copy.deepcopy(population[random.randint(0, P-1)])# set offspring 2 # get random individual
 
+            #print(offspring1)
+            #print(offspring2)
+
             crosspoint = random.randint(0,N-1) # choose random crosspoint
             
+            #print(crosspoint)
+
             # up until the cross point, swap the two offsprings genes
             tempGene = copy.deepcopy(offspring1.gene)
             for geneIndex in range(0,crosspoint):
@@ -149,6 +163,12 @@ def main(muteChance,    # the chance of a gene mutating
                 offspring.append(copy.deepcopy(offspring1))
             else:
                 offspring.append(copy.deepcopy(offspring2))
+
+        #print("after making offspring population: population")
+        #printAllGene(population)
+
+        #print("after making offspring population: offspring")
+        #printAllGene(offspring)
 
         # new mutation loop for offspring population
         for individual in offspring:
@@ -213,14 +233,13 @@ def main(muteChance,    # the chance of a gene mutating
         offspring = []
         
         #print(f"Finished Generation:{j}")
-        print(f"G{j} Best Candidate: {population[population_best_index]}")
-        print(f"    Fitness: {population[population_best_index].fitness}")
-        print(f"G{j} Worst Candidate: {population[population_worst_index]}")
-        print(f"    Fitness: {population[population_worst_index].fitness}")
+        print(f"G{j} Best  Candidate: {population[population_best_index]} Fitness: {population[population_best_index].fitness}")        
+        print(f"G{j} Worst Candidate: {population[population_worst_index]} Fitness: {population[population_worst_index].fitness}")
+
 
         #calculate the average fitness of the current generation
         avrgFitness = round(fitnessOfPopulation(population)/P,2)
-        print(f"G{j} AvrgFitness: {avrgFitness}")
+        #print(f"G{j} AvrgFitness: {avrgFitness}")
 
         #for 2D plot
         averages.append(avrgFitness)
