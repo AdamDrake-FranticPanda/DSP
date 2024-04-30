@@ -2,6 +2,8 @@ import pygame
 import random
 import csv
 
+Life_Span = 600
+
 # Parameters
 WIDTH, HEIGHT = 800, 600  # Screen dimensions
 NUM_BOIDS = 50  # Number of boids
@@ -13,7 +15,7 @@ SEPARATION_WEIGHT = 0.5  # Weight of separation behavior
 AVOID_RADIUS = 50  # Radius within which obstacles are detected
 MAX_AVOID_FORCE = 1.0  # Maximum force applied for obstacle avoidance
 
-TARGET_LOCATION = pygame.math.Vector2(WIDTH // 2, HEIGHT // 2)
+TARGET_LOCATION = pygame.math.Vector2(WIDTH - 100, HEIGHT // 2)
 TICK = 0
 AVG_DIST = True
 
@@ -141,10 +143,44 @@ def run(
 
 
     # Create a flock of boids
-    flock = [Boid(pygame.math.Vector2(random.randint(0, WIDTH), random.randint(0, HEIGHT)), pygame.math.Vector2(random.uniform(-1, 1), random.uniform(-1, 1)).normalize() * MAX_SPEED) for _ in range(NUM_BOIDS)]
+    flock = [Boid(pygame.math.Vector2(random.randint(0, WIDTH-500), random.randint(0, HEIGHT)), pygame.math.Vector2(random.uniform(-1, 1), random.uniform(-1, 1)).normalize() * MAX_SPEED) for _ in range(NUM_BOIDS)]
 
     # Create obstacles
-    obstacles = [pygame.math.Vector2(random.randint(0, WIDTH), random.randint(0, HEIGHT)) for _ in range(1)]
+
+    # Define a list of predetermined positions
+    ob_positions = [
+        (500, 0),
+        (500, 25),
+        (500, 50),
+        (500, 75),
+        #(500, 100),
+        #(500, 125),
+        #(500, 150),
+        (500, 175),
+        (500, 200),
+        (500, 225),
+        (500, 250),
+        
+        (500, 275),
+        (500, 300),
+        (500, 325),
+
+        (500, 350),
+        (500, 375),
+        (500, 400),
+        (500, 425),
+        #(500, 450),
+        #(500, 475),
+        #(500, 500),
+        (500, 525),
+        (500, 550),
+        (500, 575),
+        (500, 600),
+        # Add more positions as needed
+    ]
+
+    #obstacles = [pygame.math.Vector2(random.randint(0, WIDTH), random.randint(0, HEIGHT)) for _ in range(1)]
+    obstacles = [pygame.math.Vector2(pos) for pos in ob_positions]
 
     # Set a target point for the flock to move towards
     target_point = TARGET_LOCATION
@@ -168,14 +204,16 @@ def run(
                 if event.type == pygame.QUIT:
                     running = False
 
+            # Draw obstacles
+            for obstacle in obstacles:
+                pygame.draw.circle(screen, RED, (int(obstacle.x), int(obstacle.y)), 10)
+
             # Update and draw each boid in the flock
             for boid in flock:
                 boid.update(flock, obstacles, target_point)
                 boid.draw(screen)
 
-            # Draw obstacles
-            for obstacle in obstacles:
-                pygame.draw.circle(screen, RED, (int(obstacle.x), int(obstacle.y)), 10)
+            
 
             # Draw the target point
             pygame.draw.circle(screen, GREEN, (int(target_point.x), int(target_point.y)), 10)
@@ -204,9 +242,9 @@ def run(
             #     TICK = 0
 
             avg_dist = average_dist_from_target(flock=flock)
-            print(avg_dist)
+            #print(avg_dist)
 
-            if TICK == 59:
+            if TICK == Life_Span-1:
                 running = False
                 pygame.quit()
 
@@ -215,15 +253,17 @@ def run(
         pygame.quit()
 
     else:
-        while TICK < 60:  # Simulate for 60 ticks
+        while TICK < Life_Span:  # Simulate for Life Span ticks
             avg_dist = average_dist_from_target(flock=flock)
-            print(avg_dist)
+            #print(avg_dist)
 
             TICK += 1
 
             # Update and draw each boid in the flock
             for boid in flock:
                 boid.update(flock, obstacles, target_point)
+    
+    return avg_dist
 
 if __name__ == "__main__":
     run()
