@@ -7,7 +7,7 @@ Life_Span = 600
 # Parameters
 WIDTH, HEIGHT = 800, 600  # Screen dimensions
 NUM_BOIDS = 50  # Number of boids
-MAX_SPEED = 5  # Maximum speed of a boid
+MAX_SPEED = 2  # Maximum speed of a boid
 NEIGHBOR_RADIUS = 50  # Radius within which boids are considered neighbors
 ALIGNMENT_WEIGHT = 0.1  # Weight of alignment behavior
 COHESION_WEIGHT = 0.5  # Weight of cohesion behavior
@@ -61,6 +61,14 @@ class Boid:
             if distance < AVOID_RADIUS:
                 # Add a vector pointing away from the obstacle to avoidance
                 avoidance += (self.position - obstacle) / distance
+
+        # kill if too close to obstacle:
+        for obstacle in obstacles:
+            if self.position.distance_to(obstacle) < 15:
+                for boid in flock:
+                    if boid == self:
+                        print("Attempt to delete self")
+                        flock.remove(self)
 
         # If there are neighboring boids
         if num_neighbors > 0:
