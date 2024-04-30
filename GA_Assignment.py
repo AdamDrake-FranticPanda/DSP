@@ -4,9 +4,20 @@ import copy
 import random
 import matplotlib.pyplot as plt
 
-global func, d, usePlot
+global func, usePlot
 func = "S" # so the program knows which function to use from assignment | can be changed by being ran through import
-d = 50 # The bounds a gene can go to e.g -10 to +10
+#d = 50 # The bounds a gene can go to e.g -10 to +10
+hardCoded_gene_bounds = { # The bounds a gene can go to e.g -10 to +10
+    "max_speed": 5,
+    "neighbor_radius": 75,
+    "alignment_weight": 1,
+    "cohesion_weight": 1,
+    "separation_weight": 1,
+    "avoid_radius": 57,
+    "max_avoid_force": 5
+ } # want to change gene bounds to dictionary
+
+
 usePlot = False # if imort wants to do a 2D plot
 
 
@@ -20,16 +31,16 @@ number_of_boids = 20 # dictionary needs to be passed in
 # ----------------------------------
 
 def main(muteChance,    # the chance of a gene mutating
-         ca,    # when a gene mutates, by how much
+         muteStep,    # when a gene mutates, by how much
          pop,   # the population
          G,     # Amount of generations
          N,     # number of genomes | 'd' in assignment
          P,     # number of genes (population size)
-         X = d      # gene range | 'x' in assignment | will take either the default value or the one passed in through import
+         gene_bounds = hardCoded_gene_bounds  # gene range | 'x' in assignment | will take either the default value or the one passed in through import
          ):
 
     # Variable X is the bounds a gene can go to e.g -10 to + 10
-    CA = round(ca,2) # rounds the mutation chance to the 2nd number
+    #muteStep = round(muteStep,2) # rounds the mutation change to the 2nd number
 
     population = copy.deepcopy(pop) #list of individuals
     offspring = []
@@ -37,6 +48,10 @@ def main(muteChance,    # the chance of a gene mutating
     highestPerGeneration = []
     lowestPerGeneration = []
     averages = []
+
+    def printAllFitnesses(pop):
+        for ind in pop:
+            print(ind.fitness)
 
     def boidFitnessFuncTest(ind):
         fitness = boid_simulation.run(
@@ -50,27 +65,8 @@ def main(muteChance,    # the chance of a gene mutating
             max_avoid_force     = float(ind.gene[6]),
             show_graphics       = False
         )
-
+        #print(f"fitness = {fitness}")
         return fitness
-
-    #left func in assignment - styblinski-tang
-    # calculates the fitness of an individual
-    def fitnessFuncS(ind):
-        result=0
-        for i in range (0,N):
-            result += (ind.gene[i]**4) - 16*(ind.gene[i]**2) + (5*ind.gene[i])
-            #              x[i]^4         - 16x[i]^2         +      5x[i]
-        return result/2
-        # 1/2 of result
-
-    #right func in assignment - dixon-price
-    # calculates the fitness of an individual
-    def fitnessFuncD(ind):
-        result=0
-        for i in range (1,N):
-            result += i*(2*(ind.gene[i]**2)-ind.gene[i-1])**2
-
-        return (ind.gene[0]-1)**2 + result
 
     # returns the total fitness of a population
     def fitnessOfPopulation(pop):
@@ -84,13 +80,9 @@ def main(muteChance,    # the chance of a gene mutating
         #test population fitness
         for i in range(0, P):
             current = pop[i]
-            # Depending on the fitness funtions we're using calculate a fitness value
-            if func == "S":
-                current.fitness = fitnessFuncS(current)
-            elif func == "boidTest":
-                current.fitness = boidFitnessFuncTest(current)
-            else:
-                current.fitness = fitnessFuncD(current)
+
+            # we shouldnt need this line, unnecisary re running of simulation?
+            #current.fitness = boidFitnessFuncTest(current)
 
             if current.fitness < lowestFit:
                 lowestFit = current.fitness
@@ -100,24 +92,31 @@ def main(muteChance,    # the chance of a gene mutating
             totalfit += current.fitness
 
         return totalfit
+    
+    def findBestIndex(pop):
+        best_index = 0
+        best_fitness = pop[0].fitness
+        for i in range(1, len(pop)):
+            if pop[i].fitness < best_fitness:
+                best_fitness = pop[i].fitness
+                best_index = i
+        return best_index
 
-    def findBestIndIndex(pop):
-        best = pop[0].fitness
-        index = 0
-        for i in range(0,P):
-            if pop[i].fitness > best:
-                index = i
-                best = pop[i].fitness
-        return index
+    def findWorstIndex(pop):
+        worst_index = 0
+        worst_fitness = pop[0].fitness
+        for i in range(1, len(pop)):
+            if pop[i].fitness > worst_fitness:
+                worst_fitness = pop[i].fitness
+                worst_index = i
+        return worst_index
 
-    def findWorstIndIndex(pop):
-        worst = pop[0].fitness
-        index = 0
-        for i in range(0,P):
-            if pop[i].fitness < worst:
-                index = i
-                worst = pop[i].fitness
-        return index
+    # set initial fitness for all individuals in population
+    for individual in population:
+        individual.fitness = boidFitnessFuncTest(individual)
+        #print(individual.fitness)
+
+    #print("Set fitness values for initial population")
 
     #loop for amount of generations
     print(f"Generations {G}")
@@ -139,17 +138,10 @@ def main(muteChance,    # the chance of a gene mutating
                 offspring2.gene[geneIndex] = copy.deepcopy(tempGene[geneIndex])
 
             # calculating an offsprings fitness
-            if func == "S":
-                offspring1.fitness = fitnessFuncS(offspring1)
-                offspring2.fitness = fitnessFuncS(offspring2)
-            elif func == "boidTest":
-                # run the simulations with the new genes to get a fitness value
-                offspring1.fitness = boidFitnessFuncTest(offspring1)
-                offspring2.fitness = boidFitnessFuncTest(offspring2)
-                #print(f"Simulations Ran For Offspring...")
-            else:
-                offspring1.fitness = fitnessFuncD(offspring1)
-                offspring2.fitness = fitnessFuncD(offspring2)
+            # run the simulations with the new genes to get a new fitness value
+            offspring1.fitness = boidFitnessFuncTest(offspring1)
+            offspring2.fitness = boidFitnessFuncTest(offspring2)
+            #print(f"Simulations Ran For Offspring...")
 
 
             # compare the two offsprings, and add the best to the offspring population
@@ -158,53 +150,87 @@ def main(muteChance,    # the chance of a gene mutating
             else:
                 offspring.append(copy.deepcopy(offspring2))
 
-        # mutation of the offspring population
-        for i in range(0, P): # for all individuals
-            for x in range(0, N): # for every genome in gene
+        # new mutation loop for offspring population
+        for individual in offspring:
+            mutated = False
+            #print(f"Original Gene: {individual.gene}")
+            for geneome, (key, gene_bound) in zip(individual.gene, gene_bounds.items()):
+                # check if we are going to mutate this geneome
                 rand_check = random.randint(1,10000)/100
-                #print(f"{rand_check} | {muteChance}")
-                if rand_check <= muteChance:# chance to mutate
-                    #print("Mutated")
-                    changeAmount = CA# amount it will mutate by
 
-                    if random.randint(0,1) == 1:# 50% chance for it to be negative mutation
-                        changeAmount=changeAmount*-1
+                # if we are mutating do this
+                if rand_check <= muteChance:
+                    mutated = True
 
-                    offspring[i].gene[x] =  offspring[i].gene[x]+changeAmount # apply mutation
+                    #print("Mutation triggered")
 
-                    # keep within gene (X) bounds
-                    if offspring[i].gene[x] > X:
-                        offspring[i].gene[x] = X
-                    elif offspring[i].gene[x] < X*-1:
-                        offspring[i].gene[x] = X*-1
+                    # get the genome
+                    # get the mute_step for the correct genome
+                    geneome_mute_step = muteStep[key]
 
-        #copy best of pop to worst of offspring
-        offspring[findBestIndIndex(offspring)] = copy.deepcopy(population[findWorstIndIndex(population)])
-        
+                    # 50% chance for it to be negative mutation
+                    if random.randint(0,1) == 1:
+                        geneome_mute_step=geneome_mute_step*-1
+                    
+
+                    # apply geneome mutation
+                    geneome+=geneome_mute_step
+
+                    # keep genome in gene_bounds
+                    if geneome > gene_bound:
+                        geneome = gene_bound
+                    elif geneome < gene_bound*-1:
+                        geneome = gene_bound*-1
+
+                    #print(f"Gene: {geneome}, Key: {key}, geneBound: {gene_bound}, geneStep: {geneome_mute_step}")
+
+            # now that the gene is mutated we need to update its fitness score
+            if mutated:
+                individual.fitness = boidFitnessFuncTest(individual)
+                    
+            #print(f"After Potential Mute Gene: {individual.gene}")
+
+        #copy best of population to worst of offspring
+
+        #put the worst of population into the best of offspring
+
+        offspring_worst_index = findWorstIndex(offspring)
+
+        population_best_index = findBestIndex(population)
+
+        offspring[offspring_worst_index] = copy.deepcopy(population[population_best_index])
+
+        #offspring[findBestIndIndex(offspring)] = copy.deepcopy(population[findWorstIndIndex(population)])
+        # ^ offspring best                      =               population worst
+
         #set offspring to population for next generation
         population = copy.deepcopy(offspring)
 
-        #for 2D plot
-        averages.append(fitnessOfPopulation(population)/P)
-        highestPerGeneration.append(highestFit)
-        lowestPerGeneration.append(lowestFit)
+        population_best_index = findBestIndex(population)
+        population_worst_index = findWorstIndex(population)
+
         #reset offspring for next generation
         offspring = []
         
-        print(f"Finished Generation:{j}")
-        print(f"Best Candidate:{population[findBestIndIndex(population)]}")
+        #print(f"Finished Generation:{j}")
+        print(f"G{j} Best Candidate: {population[population_best_index]}")
+        print(f"    Fitness: {population[population_best_index].fitness}")
+        print(f"G{j} Worst Candidate: {population[population_worst_index]}")
+        print(f"    Fitness: {population[population_worst_index].fitness}")
 
-    avrgFitness = round(fitnessOfPopulation(population)/P,2)#calculate the average fitness of the current generation
-    print(f"MC:{round(muteChance,2)} MS:{round(ca,2)} avrgFitness:{round(avrgFitness,2)}")
+        #calculate the average fitness of the current generation
+        avrgFitness = round(fitnessOfPopulation(population)/P,2)
+        print(f"G{j} AvrgFitness: {avrgFitness}")
+
+        #for 2D plot
+        averages.append(avrgFitness)
+        highestPerGeneration.append(highestFit)
+        lowestPerGeneration.append(lowestFit)
+
 
     # if being ran for 2d run, else being run for 3d sweep
     if usePlot == True:
-        if func == "S":
-            plt.title("Styblinski-tang")
-        elif func == "boidTest":
-            plt.title("Distance Fitness")
-        else:
-            plt.title("Dixon-price")
+        plt.title("Dixon-price")
 
         plt.plot(highestPerGeneration, label ="Highest", color='red')
         plt.plot(averages, label="Average", color='orange')

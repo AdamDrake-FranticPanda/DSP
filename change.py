@@ -12,6 +12,17 @@ bestMute = 0
 bestStep = 0
 
 gene_types = 7 # this is the number of genes an individual needs
+hardCoded_gene_bounds = { # The bounds a gene can go to e.g -10 to +10
+    "max_speed": 5,
+    "neighbor_radius": 75,
+    "alignment_weight": 1,
+    "cohesion_weight": 1,
+    "separation_weight": 1,
+    "avoid_radius": 57,
+    "max_avoid_force": 5
+ } # want to change gene bounds to dictionary
+
+
 class individual:
     def __init__(self):
         self.gene = []
@@ -25,7 +36,7 @@ class individual:
         # avoid_radius     
         # max_avoid_force   
 
-        self.fitness = 0
+        self.fitness = None
 
     def __str__(self) -> str:
         return "str: "+str(self.gene)
@@ -39,25 +50,14 @@ def generatePop(population_size):
 
     # makes new individual for all population size
     for i in range (0, population_size):
-        # Get the values from the right section
-        # new_gene = [
-        #     float(  config.get(boid_profile, 'max_speed')),
-        #     int(    config.get(boid_profile, 'neighbor_radius')),
-        #     float(  config.get(boid_profile, 'alignment_weight')),
-        #     float(  config.get(boid_profile, 'cohesion_weight')),
-        #     float(  config.get(boid_profile, 'separation_weight')),
-        #     int(    config.get(boid_profile, 'avoid_radius')),
-        #     float(  config.get(boid_profile, 'max_avoid_force'))
-        # ]
-
         new_gene = [
-            float(  random.uniform(1, 5)),
-            int(    random.uniform(10, 50)),
-            float(  random.uniform(1, 100)/100),
-            float(  random.uniform(1, 100)/100),
-            float(  random.uniform(1, 100)/100),
-            int(    random.uniform(10, 50)),
-            float(  random.uniform(1, 15))
+            round(random.uniform(1,     hardCoded_gene_bounds["max_speed"]), 2),
+            round(random.uniform(10,    hardCoded_gene_bounds["neighbor_radius"])),
+            round(random.uniform(0.01,  hardCoded_gene_bounds["alignment_weight"]), 2),
+            round(random.uniform(0.01,  hardCoded_gene_bounds["cohesion_weight"]), 2),
+            round(random.uniform(0.01,  hardCoded_gene_bounds["separation_weight"]), 2),
+            round(random.uniform(10,    hardCoded_gene_bounds["avoid_radius"])),
+            round(random.uniform(1,     hardCoded_gene_bounds["max_avoid_force"]), 2)
         ]
 
         ind = individual()
@@ -118,30 +118,6 @@ def run3DSweep(samples, algo,mcStart, mcEnd, msStart, msEnd):
     print(f'Best fitness: {bestFit}\nBest Mute Chance: {bestMute}\nBest Mute Step: {bestStep}')
     plt.show()
 
-
-#choice = input("Select:\n1. 3D Sweep\n2. 2D Plot\n>>>: ")
-#algo = input("1. Styblinski-tang\n2. Dixon-price\n>>>: ")
-
-# so the GA uses the right function and gene range when ran
-# if algo == "1":
-#     GA.func = "S"
-#     GA.d = 5
-# else:
-#     GA.func = "D"
-#     GA.d = 10
-
-# Generates population to use for every run of the sweep
-
-# if choice == "1":
-#     choice2 = float(input("Mutation Chance Start: "))
-#     choice3 = float(input("Mutation Chance End: "))
-#     choice4 = float(input("Mutation Step Start: "))
-#     choice5 = float(input("Mutation Step End: "))
-#     choice = input("How many samples: ")
-#     run3DSweep(int(choice), algo, choice2, choice3, choice4, choice5)
-
-# elif choice == "2":
-
 config = ConfigParser()
 config.read('config.ini')
 
@@ -174,8 +150,19 @@ population = generatePop(ga_population_size)
 GA.usePlot = True
 GA.func = ga_fitness_function
 GA.number_of_boids = int(boid_profile_data.get('num_boids', 'Not found'))
+GA.hardCoded_gene_bounds = hardCoded_gene_bounds
 
-mutation_step = 1
+
+mutation_step = {
+    "max_speed": 0.2,
+    "neighbor_radius": 1,
+    "alignment_weight": 0.1,
+    "cohesion_weight": 0.1,
+    "separation_weight": 0.1,
+    "avoid_radius": 2,
+    "max_avoid_force": 0.2
+ } # when these genes mutate, how much by
+
 no_generations = 100
 
 print(f'Mutation rate: {ga_mutation_rate}')
@@ -183,11 +170,13 @@ print(f'Mutation Step: {mutation_step}')
 print(f'NO. Generations: {no_generations}')
 print(f'Population Size: {ga_population_size}')
 
+print(f"Generation gene example: {population[0]}")
+
 GA.main(
     muteChance = ga_mutation_rate,
-    ca = mutation_step,     # mutation step: when mutation occours, by how much does it mutate
-    pop = population,       # the list of boid settings that makes up the population to be trained
-    G = no_generations,     # Number of generations
-    N = gene_types,         # Number of geneomes in the gene
-    P = ga_population_size  # size of the population
+    muteStep = mutation_step,   # mutation step: when mutation occours, by how much does it mutate
+    pop = population,           # the list of boid settings that makes up the population to be trained
+    G = no_generations,         # Number of generations
+    N = gene_types,             # Number of geneomes in the gene
+    P = ga_population_size      # size of the population
 )

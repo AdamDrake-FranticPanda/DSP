@@ -63,13 +63,13 @@ class Boid:
                 avoidance += (self.position - obstacle) / distance
 
         # kill if too close to obstacle:
-        for obstacle in obstacles:
-            if self.position.distance_to(obstacle) < 15:
-                for boid in flock:
-                    if boid == self:
-                        #print("Attempt to delete self")
+        # for obstacle in obstacles:
+        #     if self.position.distance_to(obstacle) < 15:
+        #         for boid in flock:
+        #             if boid == self:
+        #                 #print("Attempt to delete self")
                         
-                        flock.remove(self)
+        #                 flock.remove(self)
 
         # If there are neighboring boids
         if num_neighbors > 0:
@@ -251,8 +251,8 @@ def run(
             #     TICK = 0
 
             # if all of the boids crash end simulation
-            if len(flock) == 0:
-                return avg_dist + 999999999999999999999999999
+            # if len(flock) == 0:
+            #     return avg_dist + 999999999999999999999999999
 
             avg_dist = average_dist_from_target(flock=flock)
             #print(avg_dist)
@@ -269,8 +269,8 @@ def run(
         while TICK < Life_Span:  # Simulate for Life Span ticks
             
             # if all of the boids crash end simulation
-            if len(flock) == 0:
-                return avg_dist + 999999999999999999999999999
+            # if len(flock) == 0:
+            #     return avg_dist + 999999999999999999999999999
 
             avg_dist = average_dist_from_target(flock=flock)
             #print(avg_dist)
@@ -281,7 +281,7 @@ def run(
             for boid in flock:
                 boid.update(flock, obstacles, target_point)
     
-    return avg_dist + ((num_boids - len(flock))*100) # penalty for having dead boids
+    return avg_dist #+ ((num_boids - len(flock))*100) # penalty for having dead boids
 
 if __name__ == "__main__":
     run()
