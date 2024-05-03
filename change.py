@@ -51,13 +51,13 @@ def generatePop(population_size):
     # makes new individual for all population size
     for i in range (0, population_size):
         new_gene = [
-            round(random.uniform(1,     hardCoded_gene_bounds["max_speed"]), 2),
-            round(random.uniform(10,    hardCoded_gene_bounds["neighbor_radius"])),
-            round(random.uniform(0.01,  hardCoded_gene_bounds["alignment_weight"]), 2),
-            round(random.uniform(0.01,  hardCoded_gene_bounds["cohesion_weight"]), 2),
-            round(random.uniform(0.01,  hardCoded_gene_bounds["separation_weight"]), 2),
-            round(random.uniform(10,    hardCoded_gene_bounds["avoid_radius"])),
-            round(random.uniform(1,     hardCoded_gene_bounds["max_avoid_force"]), 2)
+            round(random.uniform(1                                              ,    hardCoded_gene_bounds["max_speed"]), 2),
+            round(random.uniform(hardCoded_gene_bounds["neighbor_radius"]    *-1,    hardCoded_gene_bounds["neighbor_radius"])),
+            round(random.uniform(hardCoded_gene_bounds["alignment_weight"]   *-1,    hardCoded_gene_bounds["alignment_weight"]), 2),
+            round(random.uniform(hardCoded_gene_bounds["cohesion_weight"]    *-1,    hardCoded_gene_bounds["cohesion_weight"]), 2),
+            round(random.uniform(hardCoded_gene_bounds["separation_weight"]  *-1,    hardCoded_gene_bounds["separation_weight"]), 2),
+            round(random.uniform(hardCoded_gene_bounds["avoid_radius"]       *-1,    hardCoded_gene_bounds["avoid_radius"])),
+            round(random.uniform(hardCoded_gene_bounds["max_avoid_force"]    *-1,    hardCoded_gene_bounds["max_avoid_force"]), 2)
         ]
 
         ind = individual()

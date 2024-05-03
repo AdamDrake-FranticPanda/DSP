@@ -178,6 +178,9 @@ def main(muteChance,    # the chance of a gene mutating
                 # check if we are going to mutate this geneome
                 rand_check = random.randint(1,10000)/100
 
+                # Seed the random number generator with the current system time
+                random.seed()
+
                 # if we are mutating do this
                 if rand_check <= muteChance:
                     mutated = True
@@ -214,14 +217,25 @@ def main(muteChance,    # the chance of a gene mutating
 
         #put the worst of population into the best of offspring
 
-        offspring_worst_index = findWorstIndex(offspring)
+        # offspring_worst_index = findWorstIndex(offspring)
 
-        population_best_index = findBestIndex(population)
+        # population_best_index = findBestIndex(population)
 
-        offspring[offspring_worst_index] = copy.deepcopy(population[population_best_index])
+        # offspring[offspring_worst_index] = copy.deepcopy(population[population_best_index])
+
+        offsprng_best_index = findBestIndex(offspring)
+        population_worst_index = findWorstIndex(population)
+
+        offspring[offsprng_best_index] = copy.deepcopy(population[population_worst_index])
 
         #offspring[findBestIndIndex(offspring)] = copy.deepcopy(population[findWorstIndIndex(population)])
         # ^ offspring best                      =               population worst
+
+        # print(f"EOG{j} Population")
+        # printAllGene(population)
+
+        # print(f"EOG{j} Offspring")
+        # printAllGene(offspring)
 
         #set offspring to population for next generation
         population = copy.deepcopy(offspring)
@@ -229,17 +243,20 @@ def main(muteChance,    # the chance of a gene mutating
         population_best_index = findBestIndex(population)
         population_worst_index = findWorstIndex(population)
 
+        
+
         #reset offspring for next generation
         offspring = []
         
         #print(f"Finished Generation:{j}")
         print(f"G{j} Best  Candidate: {population[population_best_index]} Fitness: {population[population_best_index].fitness}")        
         print(f"G{j} Worst Candidate: {population[population_worst_index]} Fitness: {population[population_worst_index].fitness}")
+        
 
 
         #calculate the average fitness of the current generation
         avrgFitness = round(fitnessOfPopulation(population)/P,2)
-        #print(f"G{j} AvrgFitness: {avrgFitness}")
+        print(f"G{j} AvrgFitness: {avrgFitness}")
 
         #for 2D plot
         averages.append(avrgFitness)
@@ -249,7 +266,7 @@ def main(muteChance,    # the chance of a gene mutating
 
     # if being ran for 2d run, else being run for 3d sweep
     if usePlot == True:
-        plt.title("Dixon-price")
+        plt.title("Distance from target")
 
         plt.plot(highestPerGeneration, label ="Highest", color='red')
         plt.plot(averages, label="Average", color='orange')

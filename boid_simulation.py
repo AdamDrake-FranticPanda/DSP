@@ -2,10 +2,10 @@ import pygame
 import random
 import csv
 
-Life_Span = 600
+Life_Span = 900
 
 # Parameters
-WIDTH, HEIGHT = 800, 600  # Screen dimensions
+WIDTH, HEIGHT = 1400, 600  # Screen dimensions
 NUM_BOIDS = 50  # Number of boids
 MAX_SPEED = 2  # Maximum speed of a boid
 NEIGHBOR_RADIUS = 50  # Radius within which boids are considered neighbors
@@ -152,7 +152,7 @@ def run(
 
 
     # Create a flock of boids
-    flock = [Boid(pygame.math.Vector2(random.randint(0, WIDTH-500), random.randint(0, HEIGHT)), pygame.math.Vector2(random.uniform(-1, 1), random.uniform(-1, 1)).normalize() * MAX_SPEED) for _ in range(NUM_BOIDS)]
+    flock = [Boid(pygame.math.Vector2(random.randint(0, 450), random.randint(0, HEIGHT)), pygame.math.Vector2(random.uniform(-1, 1), random.uniform(-1, 1)).normalize() * MAX_SPEED) for _ in range(NUM_BOIDS)]
 
     # Create obstacles
 
@@ -186,6 +186,84 @@ def run(
         (500, 575),
         (500, 600),
         # Add more positions as needed
+
+        (700, 0),
+        (700, 25),
+        (700, 50),
+        (700, 75),
+        (700, 100),
+        (700, 125),
+        (700, 150),
+        (700, 175),
+        (700, 200),
+        (700, 225),
+        (700, 250),
+        #(700, 275),
+        #(700, 300),
+        #(700, 325),
+        (700, 350),
+        (700, 375),
+        (700, 400),
+        (700, 425),
+        (700, 450),
+        (700, 475),
+        (700, 500),
+        (700, 525),
+        (700, 550),
+        (700, 575),
+        (700, 600),
+
+        (900, 0),
+        (900, 25),
+        (900, 50),
+        #(900, 75),
+        #(900, 100),
+        #(900, 125),
+        (900, 150),
+        (900, 175),
+        (900, 200),
+        (900, 225),
+        (900, 250),
+        (900, 275),
+        (900, 300),
+        (900, 325),
+        (900, 350),
+        (900, 375),
+        (900, 400),
+        (900, 425),
+        (900, 450),
+        #(900, 475),
+        #(900, 500),
+        #(900, 525),
+        (900, 550),
+        (900, 575),
+        (900, 600),
+
+        (1000, 0),
+        (1000, 25),
+        (1000, 50),
+        (1000, 75),
+        (1000, 100),
+        (1000, 125),
+        (1000, 150),
+        (1000, 175),
+        (1000, 200),
+        (1000, 225),
+        (1000, 250),
+        #(700, 275),
+        #(700, 300),
+        #(700, 325),
+        (1100, 350),
+        (1100, 375),
+        (1100, 400),
+        (1100, 425),
+        (1100, 450),
+        (1100, 475),
+        (1100, 500),
+        (1100, 525),
+        (1100, 550),
+        (1100, 575),
+        (1100, 600),
     ]
 
     #obstacles = [pygame.math.Vector2(random.randint(0, WIDTH), random.randint(0, HEIGHT)) for _ in range(1)]
@@ -281,7 +359,8 @@ def run(
             for boid in flock:
                 boid.update(flock, obstacles, target_point)
     
-    return avg_dist + ((num_boids - len(flock))*10) # penalty for having dead boids
+    #print(f"score: {avg_dist + ((num_boids - len(flock))*50)}")
+    return avg_dist + ((num_boids - len(flock))*50) # penalty for having dead boids
 
 if __name__ == "__main__":
     run()
