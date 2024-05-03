@@ -262,9 +262,6 @@ def run(
     #obstacles = [pygame.math.Vector2(random.randint(0, WIDTH), random.randint(0, HEIGHT)) for _ in range(1)]
     obstacles = [pygame.math.Vector2(pos) for pos in ob_positions]
 
-    # Set a target point for the flock to move towards
-    target_point = TARGET_LOCATION
-
     if show_graphics:
         # Initialize Pygame
         pygame.init()
@@ -283,7 +280,7 @@ def run(
 
         # Update and draw each boid in the flock
         for boid in flock:
-            boid.update(flock, obstacles, target_point)
+            boid.update(flock, obstacles, TARGET_LOCATION)
 
         if show_graphics:
             # Clear the screen
@@ -299,7 +296,7 @@ def run(
                 pygame.draw.circle(screen, RED, (int(obstacle.x), int(obstacle.y)), 10)
 
             # Draw the target point
-            pygame.draw.circle(screen, GREEN, (int(target_point.x), int(target_point.y)), 10)
+            pygame.draw.circle(screen, GREEN, (int(TARGET_LOCATION.x), int(TARGET_LOCATION.y)), 10)
 
             # Update and draw each boid in the flock
             for boid in flock:
