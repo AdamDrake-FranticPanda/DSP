@@ -330,7 +330,7 @@ def run(
 
             # if all of the boids crash end simulation
             if len(flock) == 0:
-                return avg_dist + 999999999999999999999999999
+                avg_dist + ((num_boids - len(flock))*50)
 
             avg_dist = average_dist_from_target(flock=flock)
             #print(avg_dist)
@@ -348,7 +348,7 @@ def run(
             
             # if all of the boids crash end simulation
             if len(flock) == 0:
-                return avg_dist + 999999999999999999999999999
+                avg_dist + ((num_boids - len(flock))*50)
 
             avg_dist = average_dist_from_target(flock=flock)
             #print(avg_dist)
