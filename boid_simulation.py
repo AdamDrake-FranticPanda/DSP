@@ -27,7 +27,7 @@ RED = (255, 0, 0) # Colour of obstacles
 # Create obstacles
 
 # Define a list of predetermined positions
-ob_positions = [
+OB_POSITIONS = [
     (500, 0),
     (500, 25),
     (500, 50),
@@ -137,7 +137,9 @@ ob_positions = [
 ]
 
 #obstacles = [pygame.math.Vector2(random.randint(0, WIDTH), random.randint(0, HEIGHT)) for _ in range(1)]
-obstacles = [pygame.math.Vector2(pos) for pos in ob_positions]
+obstacles = [pygame.math.Vector2(pos) for pos in OB_POSITIONS]
+
+random.seed(42)
 
 class Boid:
     def __init__(self, position, velocity):
@@ -255,8 +257,6 @@ def run(
     SEPARATION_WEIGHT = separation_weight
     AVOID_RADIUS = avoid_radius
     MAX_AVOID_FORCE = max_avoid_force
-
-    random.seed(42)
 
 
     # Create a flock of boids
