@@ -16,8 +16,7 @@ AVOID_RADIUS = 50  # Radius within which obstacles are detected
 MAX_AVOID_FORCE = 1.0  # Maximum force applied for obstacle avoidance
 
 TARGET_LOCATION = pygame.math.Vector2(WIDTH - 100, HEIGHT // 2)
-TICK = 0
-AVG_DIST = True
+AVG_DIST = None
 
 # Colors
 WHITE = (255, 255, 255)  # Colour of boids
@@ -110,9 +109,7 @@ def average_dist_from_target(flock):
     for boid in flock:
         distance += boid.position.distance_to(TARGET_LOCATION)
 
-    distance = distance / len(flock)
-
-    return distance
+    return distance  / len(flock)
 
 def run(
         num_boids = NUM_BOIDS, 
@@ -134,10 +131,6 @@ def run(
     global SEPARATION_WEIGHT # Weight of separation behavior
     global AVOID_RADIUS # Radius within which obstacles are detected
     global MAX_AVOID_FORCE # Maximum force applied for obstacle avoidance
-
-    global TICK
-
-    TICK = 0
 
     NUM_BOIDS = num_boids
     MAX_SPEED = max_speed
@@ -273,16 +266,26 @@ def run(
     target_point = TARGET_LOCATION
 
     if show_graphics:
-
         # Initialize Pygame
         pygame.init()
         screen = pygame.display.set_mode((WIDTH, HEIGHT))
         pygame.display.set_caption("Flocking Simulation")
         clock = pygame.time.Clock()
 
-        running = True
-        while running:
+    for tick in range(0, Life_Span):  # Simulate for Life Span ticks
 
+        # if all of the boids crash end simulation
+        if len(flock) == 0:
+            return avg_dist + ((num_boids - len(flock))*50)
+
+        avg_dist = average_dist_from_target(flock=flock)
+        #print(avg_dist)
+
+        # Update and draw each boid in the flock
+        for boid in flock:
+            boid.update(flock, obstacles, target_point)
+
+        if show_graphics:
             # Clear the screen
             screen.fill(BLACK)
 
@@ -295,53 +298,21 @@ def run(
             for obstacle in obstacles:
                 pygame.draw.circle(screen, RED, (int(obstacle.x), int(obstacle.y)), 10)
 
-            # Update and draw each boid in the flock
-            for boid in flock:
-                boid.update(flock, obstacles, target_point)
-                boid.draw(screen)
-
-            
-
             # Draw the target point
             pygame.draw.circle(screen, GREEN, (int(target_point.x), int(target_point.y)), 10)
+
+            # Update and draw each boid in the flock
+            for boid in flock:
+                boid.draw(screen)
 
             # Update the display
             pygame.display.flip()
             clock.tick(60)
 
-            TICK += 1
-
-            # if all of the boids crash end simulation
-            if len(flock) == 0:
-                avg_dist + ((num_boids - len(flock))*50)
-
-            avg_dist = average_dist_from_target(flock=flock)
-            #print(avg_dist)
-
-            if TICK == Life_Span-1:
-                running = False
-                pygame.quit()
-
-
+    if show_graphics:
         # Quit Pygame
         pygame.quit()
 
-    else:
-        while TICK < Life_Span:  # Simulate for Life Span ticks
-            
-            # if all of the boids crash end simulation
-            if len(flock) == 0:
-                avg_dist + ((num_boids - len(flock))*50)
-
-            avg_dist = average_dist_from_target(flock=flock)
-            #print(avg_dist)
-
-            TICK += 1
-
-            # Update and draw each boid in the flock
-            for boid in flock:
-                boid.update(flock, obstacles, target_point)
-    
     #print(f"score: {avg_dist + ((num_boids - len(flock))*50)}")
     return avg_dist + ((num_boids - len(flock))*50) # penalty for having dead boids
 
