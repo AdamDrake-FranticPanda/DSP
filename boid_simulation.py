@@ -309,24 +309,7 @@ def run(
             pygame.display.flip()
             clock.tick(60)
 
-            # if AVG_DIST and TICK % 6 == 0:
-            #     avg_dist = average_dist_from_target(flock=flock)
-                
-            #     # Define the filename for the CSV file
-            #     filename = "output.csv"
-
-            #     # Open the CSV file in write mode
-            #     with open(filename, mode='a', newline='') as file:
-            #         # Create a CSV writer object
-            #         writer = csv.writer(file)
-                    
-            #         # Write the variable to the CSV file
-            #         writer.writerow([avg_dist])
-            #         print(avg_dist)
-
             TICK += 1
-            # if TICK > 60:
-            #     TICK = 0
 
             # if all of the boids crash end simulation
             if len(flock) == 0:
