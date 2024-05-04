@@ -163,7 +163,7 @@ mutation_step = {
     "max_avoid_force": 0.2
  } # when these genes mutate, how much by
 
-no_generations = 100
+no_generations = 10
 
 print(f'Mutation rate: {ga_mutation_rate}')
 print(f'Mutation Step: {mutation_step}')

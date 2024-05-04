@@ -166,6 +166,8 @@ class Boid:
                     # Add the position of the other boid to cohesion
                     cohesion += boid.position
                     # Add a vector pointing away from the other boid to separation
+                    if distance == 0:
+                        distance = 1
                     separation += (self.position - boid.position) / distance
                     num_neighbors += 1
 
@@ -191,13 +193,31 @@ class Boid:
         if num_neighbors > 0:
             # Calculate average alignment vector
             alignment /= num_neighbors
-            alignment = alignment.normalize() * MAX_SPEED
+            try:
+                alignment = alignment.normalize() * MAX_SPEED
+            except ValueError as e:
+                print("Error:", e)
+                alignment = pygame.math.Vector2(0, 0)
+
+
             # Calculate average cohesion vector
             cohesion /= num_neighbors
-            cohesion = (cohesion - self.position).normalize() * MAX_SPEED
+            try:
+                cohesion = (cohesion - self.position).normalize() * MAX_SPEED
+            except ValueError as e:
+                print("Error:", e)
+                cohesion = pygame.math.Vector2(0, 0)
+
             # Calculate average separation vector
             separation /= num_neighbors
-            separation = separation.normalize() * MAX_SPEED
+            try:
+                separation = separation.normalize() * MAX_SPEED
+            except ValueError as e:
+                # Handle the case where separation vector is zero
+                # For example, you can set a default separation vector or log the error
+                print("Error:", e)
+                # Set a default separation vector
+                separation = pygame.math.Vector2(0, 0)  # Adjust this according to your vector type
 
             # Update velocity based on alignment, cohesion, separation, and avoidance
             self.velocity += alignment * ALIGNMENT_WEIGHT + cohesion * COHESION_WEIGHT + separation * SEPARATION_WEIGHT + avoidance * MAX_AVOID_FORCE
