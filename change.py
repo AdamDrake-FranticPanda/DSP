@@ -83,41 +83,6 @@ def runTest(muteChance, muteStep):
         bestStep = muteStep
     return fitness
 
-def run3DSweep(samples, algo,mcStart, mcEnd, msStart, msEnd):
-    print("Starting 3D Sweep")
-    #makes 3d graph & axis for plt
-    fig = plt.figure()
-    ax = plt.axes(projection='3d')
-
-    # makes array of evenly spaced values between a,b with samples c
-    muteChance = np.linspace(mcStart,mcEnd,samples)
-    muteStep = np.linspace(msStart,msEnd,samples)
-
-    # make plt grid with the evenly spaced values
-    X,Y = np.meshgrid(muteChance,muteStep)
-
-    # runs runTest witht the even values generated for mc & ms and returns np array
-    run = np.vectorize(runTest)
-    Z = run(X,Y)
-
-    # plots calculated points
-    ax.plot_surface(X,Y,Z, rstride=1, cstride=1,cmap='coolwarm', edgecolor='none')
-
-    # add labels
-    if algo == "1":
-        ax.set_title("3D Sweep: styblinski-tang")
-    else:
-        ax.set_title("3D Sweep: dixon-price")
-
-    ax.set_xlabel("Mutation Chance %")
-    ax.set_ylabel("Mutation Change")
-    ax.set_zlabel("Fitness")
-
-    #runTest()
-    print('Sweep Done')
-    print(f'Best fitness: {bestFit}\nBest Mute Chance: {bestMute}\nBest Mute Step: {bestStep}')
-    plt.show()
-
 config = ConfigParser()
 config.read('config.ini')
 
