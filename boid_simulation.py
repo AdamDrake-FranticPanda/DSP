@@ -139,7 +139,6 @@ OB_POSITIONS = [
 #obstacles = [pygame.math.Vector2(random.randint(0, WIDTH), random.randint(0, HEIGHT)) for _ in range(1)]
 obstacles = [pygame.math.Vector2(pos) for pos in OB_POSITIONS]
 
-random.seed(42)
 
 class Boid:
     def __init__(self, position, velocity):
@@ -196,7 +195,7 @@ class Boid:
             try:
                 alignment = alignment.normalize() * MAX_SPEED
             except ValueError as e:
-                print("Error:", e)
+                #print("Error:", e)
                 alignment = pygame.math.Vector2(0, 0)
 
 
@@ -205,7 +204,7 @@ class Boid:
             try:
                 cohesion = (cohesion - self.position).normalize() * MAX_SPEED
             except ValueError as e:
-                print("Error:", e)
+                #print("Error:", e)
                 cohesion = pygame.math.Vector2(0, 0)
 
             # Calculate average separation vector
@@ -215,13 +214,14 @@ class Boid:
             except ValueError as e:
                 # Handle the case where separation vector is zero
                 # For example, you can set a default separation vector or log the error
-                print("Error:", e)
+                #print("Error:", e)
                 # Set a default separation vector
                 separation = pygame.math.Vector2(0, 0)  # Adjust this according to your vector type
 
             # Update velocity based on alignment, cohesion, separation, and avoidance
             self.velocity += alignment * ALIGNMENT_WEIGHT + cohesion * COHESION_WEIGHT + separation * SEPARATION_WEIGHT + avoidance * MAX_AVOID_FORCE
-            self.velocity = self.velocity.normalize() * MAX_SPEED
+            if self.velocity.length() != 0:
+                self.velocity = self.velocity.normalize() * MAX_SPEED
 
         # Move towards the target point
         desired_direction = (target_point - self.position).normalize()
@@ -278,6 +278,8 @@ def run(
     AVOID_RADIUS = avoid_radius
     MAX_AVOID_FORCE = max_avoid_force
 
+    # seed the simulation on run, so if imported and ran multiple times, you still get the same result
+    random.seed(42)
 
     # Create a flock of boids
     flock = [Boid(pygame.math.Vector2(random.randint(0, 450), random.randint(0, HEIGHT)), pygame.math.Vector2(random.uniform(-1, 1), random.uniform(-1, 1)).normalize() * MAX_SPEED) for _ in range(NUM_BOIDS)]
