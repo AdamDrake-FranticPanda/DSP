@@ -3,6 +3,7 @@ from configparser import ConfigParser
 import os
 
 import boid_simulation
+import change as genetic_algorithm
 
 boid_profile_path = ''
 ga_profile_path = ''
@@ -210,7 +211,6 @@ def boid_options():
                 entry_SEPARATION_WEIGHT .delete(0, tk.END)
                 entry_AVOID_RADIUS      .delete(0, tk.END)
                 entry_MAX_AVOID_FORCE   .delete(0, tk.END)
-
                 entry_PROFILE_ID        .insert(tk.END, boid_config.get('PROFILE_ID', ''))
                 entry_NUM_BOIDS         .insert(tk.END, boid_config.get('NUM_BOIDS', ''))  # Insert value
                 entry_MAX_SPEED         .insert(tk.END, boid_config.get('MAX_SPEED', ''))
@@ -283,7 +283,6 @@ def boid_options():
     entry_AVOID_RADIUS      = tk.Entry(frame3, width=30)
     entry_MAX_AVOID_FORCE   = tk.Entry(frame3, width=30)
 
-
     # Add buttons to the popup window
     new_button = tk.Button(frame1, text="New", command=boid_profile_create)
 
@@ -304,9 +303,6 @@ def boid_options():
                 ]
         )
         )
-
-
-
     delete_button = tk.Button(frame1, text="Delete", command=profile_delete_current_selected)
     close_button = tk.Button(frame1, text="Close", command=on_closing)
 
@@ -654,6 +650,12 @@ def run_simulation_click(boid_profile, ga_profile, show_graphics):
         show_graphics       = show_graphics.get()
     )
 
+def run_genetic_algorithm(boid_profile, ga_profile):
+    boid_profile_name   = boid_profile.get()
+    ga_profile_name     = ga_profile.get()
+    print(f"Swarm profile: {boid_profile_name}\nGA Profile: {ga_profile_name}")
+    genetic_algorithm.main(boid_profile_name, ga_profile_name)
+
 def main():
 
     root = tk.Tk()
@@ -723,6 +725,10 @@ def main():
     # Create a button and place it in the window
     button = tk.Button(root, text="Run Simulation", command=lambda: run_simulation_click(boid_profile, ga_profile, checkbox_state))
     button.grid(row=3, column=0, padx=5, pady=5, sticky="e")
+
+    # Create a button and place it in the window
+    button = tk.Button(root, text="Run GeneticAlgorithm", command=lambda: run_genetic_algorithm(boid_profile, ga_profile))
+    button.grid(row=3, column=1, padx=5, pady=5, sticky="e")
 
     root.mainloop()
 

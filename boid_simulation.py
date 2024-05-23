@@ -1,6 +1,5 @@
 import pygame
 import random
-import csv
 
 Life_Span = 900
 
